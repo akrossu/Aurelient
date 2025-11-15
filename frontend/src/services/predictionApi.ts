@@ -2,6 +2,7 @@
 export interface InferencePrediction {
   complexity: number
   confidence: number
+  debug?: any
 }
 
 export async function fetchPrediction(
@@ -13,13 +14,10 @@ export async function fetchPrediction(
     body: JSON.stringify({ prompt }),
   })
 
-  if (!res.ok) {
-    throw new Error(`backend error: ${res.status}`)
-  }
+  if (!res.ok) throw new Error(`backend error: ${res.status}`)
 
   const data = await res.json()
 
-  // hard validation
   if (
     typeof data.complexity !== 'number' ||
     typeof data.confidence !== 'number'
@@ -30,12 +28,12 @@ export async function fetchPrediction(
   const c = Math.round(data.complexity)
   const f = Math.round(data.confidence)
 
-  // strict clamping
-  const complexity =
-    c >= 1 && c <= 100 ? c : (() => { throw new Error('invalid complexity') })()
+  if (c < 1 || c > 100) throw new Error('invalid complexity')
+  if (f < 1 || f > 100) throw new Error('invalid confidence')
 
-  const confidence =
-    f >= 1 && f <= 100 ? f : (() => { throw new Error('invalid confidence') })()
-
-  return { complexity, confidence }
+  return {
+    complexity: c,
+    confidence: f,
+    debug: data.debug ?? null,
+  }
 }
