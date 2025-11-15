@@ -1,5 +1,5 @@
 import app from './app.js';
-import { PORT, USE_FAKE } from './config/settings.js';
+import { PORT, USE_FAKE } from './src/config/settings.js';
 
 app.listen(PORT, () => {
   console.log(`backend http://localhost:${PORT}`);
