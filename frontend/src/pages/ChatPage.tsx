@@ -5,14 +5,13 @@ import useAnimatedCurve from '../hooks/useAnimatedCurve'
 import { fakeLLMReply } from '../services/fakeLLMReply'
 import type { Message } from '../types/Message'
 
-import { Send } from "@/components/icons/Send";
+import ChatInputBox from '@/components/ChatInputBox'
 
 // fake
 // import useInferencePrediction from '../hooks/useInferencePrediction'
 
 // real
 import useInferencePrediction from '../hooks/useInferencePredictionReal'
-
 
 const uuid = () => crypto.randomUUID()
 
@@ -25,7 +24,6 @@ export default function ChatPage() {
   const [depthLocked, setDepthLocked] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement | null>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const {
     prediction,
@@ -33,8 +31,7 @@ export default function ChatPage() {
     resetPrediction
   } = useInferencePrediction()
 
-  // lowkey might never use resetCurve again lol
-  const { mean, sigma, resetCurve } = useAnimatedCurve(prediction)
+  const { mean, sigma } = useAnimatedCurve(prediction)
 
   const [userIsControlling, setUserIsControlling] = useState(false)
   const lastUserControlTime = useRef(Date.now())
@@ -98,22 +95,13 @@ export default function ChatPage() {
     setInput('')
     setShowCurve(false)
 
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
-      textareaRef.current.style.borderRadius = "9999px"
-    }
-
     resetPrediction()
     setDepthLocked(false)
   }
 
-  useEffect(() => { 
-    if (textareaRef.current) { 
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
-      textareaRef.current.style.overflowY = 'hidden'
-    } 
-  }, [])
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' })}, [messages])
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   return (
     <div className="w-full h-screen bg-[#0f1113] text-gray-200 flex flex-col relative">
@@ -143,12 +131,13 @@ export default function ChatPage() {
         onControlEnd={endControl}
       />
 
-      {/* <footer className="px-4 sm:px-6 py-5 backdrop-blur-xl"> */}
-      <footer className='fixed bottom-0 w-full px-4 sm:px-6 pb-5 z-50'>
-      <div
-      className="absolute inset-x-0 bottom-0 h-[calc((50%)+10px)] bg-[#0f1113] pointer-events-none"
-      style={{ zIndex: 0 }}/>
-        <div className="w-full max-w-3xl mx-auto">
+      <footer className="fixed bottom-0 w-full px-4 sm:px-6 pb-5 z-50">
+        <div
+          className="absolute inset-x-0 bottom-0 h-[calc((50%)+10px)] bg-[#0f1113] pointer-events-none"
+          style={{ zIndex: 0 }}
+        />
+
+        <div className="w-full max-w-3xl mx-auto relative z-50">
           <form
             onSubmit={(e) => {
               e.preventDefault()
@@ -156,52 +145,15 @@ export default function ChatPage() {
             }}
             className="flex gap-3"
           >
-            <div className="relative flex-1">
-              <textarea
-                rows={1}
-                ref={textareaRef}
-                className="
-                  w-full max-h-32 rounded-full bg-[#1a1c1f] border border-white/10
-                  px-5 pr-12 py-3 text-sm placeholder-gray-500
-                  focus:outline-none focus:ring-0 focus:ring-blue-500/40
-                  shadow-inner transition-[height] duration-120 ease-in-out
-                  resize-none whitespace-pre-wrap
-                  overflow-y-auto box-border
-                "
-                placeholder="Start by asking a question..."
-                value={input}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setInput(v)
-                  setDepthLocked(false)
-                  updatePredictionFromInput(v)
-
-                  setShowCurve(v.length > 0)
-
-                  e.target.style.height = 'auto'
-                  const maxHeight = 128 // h-32
-                  e.target.style.height = `${Math.min(e.target.scrollHeight, maxHeight)}px`
-                  e.target.style.overflowY = e.target.scrollHeight > maxHeight ? "auto" : "hidden"
-                  e.target.style.borderRadius = e.target.scrollHeight > 50 ? "0.75rem" : "9999px" // v kewl
-                }}
-              />
-
-              <button
-                type="submit"
-                disabled={!input}
-                aria-label="Send message"
-                className={`
-                  absolute right-3 top-1/2 -translate-y-1/2 p-1
-                  transition-opacity duration-300
-                  focus:outline-none focus:ring-2 focus:ring-blue-500/40
-                  ${input.trim() ? "opacity-100 cursor-pointer" : "opacity-0 cursor-not-allowed"}
-                `}
-              >
-                <Send className="w-5 h-5 text-gray-400 hover:text-white transition" />
-              </button>
-            </div>
+            <ChatInputBox
+              input={input}
+              setInput={setInput}
+              sendMessage={sendMessage}
+              updatePredictionFromInput={updatePredictionFromInput}
+              setDepthLocked={setDepthLocked}
+              setShowCurve={setShowCurve}
+            />
           </form>
-
         </div>
       </footer>
     </div>
