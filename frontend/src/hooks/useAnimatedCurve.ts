@@ -1,6 +1,6 @@
 // src/hooks/useAnimatedCurve.ts
 import { useEffect, useRef, useState, useCallback } from 'react'
-import type { InferencePrediction } from './useInferencePredictionReal'
+import type { InferencePrediction } from '@/services/predictionApi'
 
 const DEFAULT_MEAN = 0.5
 const DEFAULT_SIGMA = 0.18

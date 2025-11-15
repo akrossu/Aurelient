@@ -1,12 +1,13 @@
-import { useRef } from 'react'
-import { SendHorizonal } from 'lucide-react'
-// import { Send } from '@/components/icons/Send'
+// src/components/ChatInputBox.tsx
+import { useRef } from "react"
+import { SendHorizonal } from "lucide-react"
 
 interface Props {
   input: string
   setInput: (v: string) => void
   sendMessage: () => void
   updatePredictionFromInput: (v: string) => void
+  updateSuggestions: (v: string) => void      // <–– added
   setDepthLocked: (v: boolean) => void
   setShowCurve: (v: boolean) => void
 }
@@ -16,6 +17,7 @@ export default function ChatInputBox({
   setInput,
   sendMessage,
   updatePredictionFromInput,
+  updateSuggestions,                  // <–– new
   setDepthLocked,
   setShowCurve,
 }: Props) {
@@ -26,26 +28,26 @@ export default function ChatInputBox({
 
     setInput(v)
     setDepthLocked(false)
-    updatePredictionFromInput(v)
 
-    // curve visibility tied to input length — preserve original behavior
+    updatePredictionFromInput(v)      // fast
+    updateSuggestions(v)              // slower, delayed
+
     setShowCurve(v.length > 0)
 
     // auto-resize
     const el = e.target
-    el.style.height = 'auto'
+    el.style.height = "auto"
     const maxHeight = 128
     el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`
     el.style.overflowY =
-      el.scrollHeight > maxHeight ? 'auto' : 'hidden'
+      el.scrollHeight > maxHeight ? "auto" : "hidden"
 
-    // rounded pill vs rounded box
     el.style.borderRadius =
-      el.scrollHeight > 50 ? '0.75rem' : '9999px'
+      el.scrollHeight > 50 ? "0.75rem" : "9999px"
   }
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
     }
@@ -77,11 +79,10 @@ export default function ChatInputBox({
         className={`
           absolute right-3 pt-3 p-1
           transition-opacity duration-300
-          focus:outline-none focus:ring-2 focus:ring-blue-500/40
-          ${input.trim() ? 'opacity-100 cursor-pointer' : 'opacity-0 cursor-not-allowed'}
+          ${input.trim() ? "opacity-100 cursor-pointer" : "opacity-0 cursor-not-allowed"}
         `}
       >
-        <SendHorizonal className='w-5 h-5' />
+        <SendHorizonal className="w-5 h-5" />
       </button>
     </div>
   )
