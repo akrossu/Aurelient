@@ -5,6 +5,8 @@ import useAnimatedCurve from '../hooks/useAnimatedCurve'
 import { fakeLLMReply } from '../services/fakeLLMReply'
 import type { Message } from '../types/Message'
 
+import { Send } from "@/components/icons/Send";
+
 // fake
 // import useInferencePrediction from '../hooks/useInferencePrediction'
 
@@ -21,7 +23,9 @@ export default function ChatPage() {
   const [showCurve, setShowCurve] = useState(true)
 
   const [depthLocked, setDepthLocked] = useState(false)
+
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const {
     prediction,
@@ -96,15 +100,18 @@ export default function ChatPage() {
     setDepthLocked(false)
   }
 
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  useEffect(() => { 
+    if (textareaRef.current) { 
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
+      textareaRef.current.style.overflowY = 'hidden'
+    } 
+  }, [])
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' })}, [messages])
 
   return (
     <div className="w-full h-screen bg-[#0f1113] text-gray-200 flex flex-col relative">
 
-      <header className="h-14 px-6 flex items-center bg-[#141519]/80 backdrop-blur-md border-b border-white/5">
+      <header className="h-14 px-6 flex items-center bg-none">
         <h1 className="text-lg font-medium">Aurelient</h1>
       </header>
 
@@ -129,7 +136,7 @@ export default function ChatPage() {
         onControlEnd={endControl}
       />
 
-      <footer className="px-4 sm:px-6 py-5 bg-[#141519]/80 backdrop-blur-xl border-t border-white/5">
+      <footer className="px-4 sm:px-6 py-5 backdrop-blur-xl">
         <div className="w-full max-w-3xl mx-auto">
           <form
             onSubmit={(e) => {
@@ -138,33 +145,51 @@ export default function ChatPage() {
             }}
             className="flex gap-3"
           >
-            <input
-              className="
-                flex-1 rounded-xl bg-[#1a1c1f] border border-white/10
-                px-5 py-3 text-sm placeholder-gray-500
-                focus:outline-none focus:ring-2 focus:ring-blue-500/40
-                shadow-inner transition
-              "
-              placeholder="type your message…"
-              value={input}
-              onChange={(e) => {
-                const v = e.target.value
-                setInput(v)
-                setDepthLocked(false)
-                updatePredictionFromInput(v)
-              }}
-            />
+            <div className="relative flex-1">
+              <textarea
+                rows={1}
+                ref={textareaRef}
+                className="
+                  w-full max-h-32 rounded-full bg-[#1a1c1f] border border-white/10
+                  px-5 pr-12 py-3 text-sm placeholder-gray-500
+                  focus:outline-none focus:ring-2 focus:ring-blue-500/40
+                  shadow-inner transition-[height] duration-120 ease-in-out
+                  resize-none whitespace-pre-wrap
+                  overflow-y-auto box-border
+                "
+                placeholder="Start by asking a question..."
+                value={input}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setInput(v)
+                  setDepthLocked(false)
+                  updatePredictionFromInput(v)
 
-            <button
-              type="submit"
-              className="
-                px-6 py-3 rounded-xl text-sm font-medium bg-blue-600
-                hover:bg-blue-700 text-white shadow transition
-              "
-            >
-              Send
-            </button>
+                  e.target.style.height = 'auto'
+                  const maxHeight = 128 // h-32
+                  e.target.style.height = `${Math.min(e.target.scrollHeight, maxHeight)}px`
+                  e.target.style.overflowY = e.target.scrollHeight > maxHeight ? "auto" : "hidden"
+                  e.target.style.borderRadius = e.target.scrollHeight > 50 ? "0.75rem" : "9999px" // v kewl
+                  console.log(e.target.scrollHeight)
+                }}
+              />
+
+              <button
+                type="submit"
+                disabled={!input}
+                aria-label="Send message"
+                className={`
+                  absolute right-3 top-1/2 -translate-y-1/2 p-1
+                  transition-opacity duration-300
+                  focus:outline-none focus:ring-2 focus:ring-blue-500/40
+                  ${input.trim() ? "opacity-100 cursor-pointer" : "opacity-0 cursor-not-allowed"}
+                `}
+              >
+                <Send className="w-5 h-5 text-gray-400 hover:text-white transition" />
+              </button>
+            </div>
           </form>
+
         </div>
       </footer>
     </div>
