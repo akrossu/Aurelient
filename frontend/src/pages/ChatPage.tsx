@@ -20,7 +20,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [inferenceDepth, setInferenceDepth] = useState(0.5)
-  const [showCurve, setShowCurve] = useState(true)
+  const [showCurve, setShowCurve] = useState(false)
 
   const [depthLocked, setDepthLocked] = useState(false)
 
@@ -96,6 +96,7 @@ export default function ChatPage() {
     ])
   
     setInput('')
+    setShowCurve(false)
 
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
@@ -174,6 +175,8 @@ export default function ChatPage() {
                   setInput(v)
                   setDepthLocked(false)
                   updatePredictionFromInput(v)
+
+                  setShowCurve(v.length > 0)
 
                   e.target.style.height = 'auto'
                   const maxHeight = 128 // h-32
