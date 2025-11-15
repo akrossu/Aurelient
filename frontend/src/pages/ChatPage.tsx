@@ -173,7 +173,6 @@ export default function ChatPage() {
                   e.target.style.height = `${Math.min(e.target.scrollHeight, maxHeight)}px`
                   e.target.style.overflowY = e.target.scrollHeight > maxHeight ? "auto" : "hidden"
                   e.target.style.borderRadius = e.target.scrollHeight > 50 ? "0.75rem" : "9999px" // v kewl
-                  console.log(e.target.scrollHeight)
                 }}
               />
 
