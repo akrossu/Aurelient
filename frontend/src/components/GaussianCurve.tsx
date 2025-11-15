@@ -51,7 +51,7 @@ export default function GaussianCurve({
   const handleDrag = (clientX: number) => {
     if (!svgRef.current || !onChange) return
     const rect = svgRef.current.getBoundingClientRect()
-    const relative = (clientX - rect.left) / rect.width
+    const relative = clamp01((clientX - rect.left) / rect.width) - 0.001
     onChange(clamp01(relative))
   }
 
