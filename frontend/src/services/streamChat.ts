@@ -9,6 +9,7 @@ export async function streamChat(
   },
   onToken: (t: string) => void
 ) {
+  let gotAnyTokens = false
   const res = await fetch("http://localhost:4000/api/chat-stream", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -42,10 +43,17 @@ export async function streamChat(
       try {
         const parsed = JSON.parse(jsonStr)
         const token = parsed?.choices?.[0]?.delta?.content
-        if (token) onToken(token)
+        if (token) {
+          gotAnyTokens = true
+          onToken(token)
+        }
       } catch {
         // ignore partial JSON
       }
     }
+  }
+  
+  if (!gotAnyTokens) {
+    onToken("[LLM OFFLINE: No response received]")
   }
 }

@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react'
 import ChatMessage from '../components/ChatMessage'
 import InferenceCurveContainer from '../components/InferenceCurveContainer'
 import useAnimatedCurve from '../hooks/useAnimatedCurve'
-import { fakeLLMReply } from '../services/fakeLLMReply'
 import type { Message } from '../types/Message'
 import { streamChat } from "@/services/streamChat"
 

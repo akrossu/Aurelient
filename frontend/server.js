@@ -195,14 +195,46 @@ app.post("/api/chat-stream", async (req, res) => {
     ],
   }
 
-  const lm = await fetch("http://localhost:1234/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  })
-
+  let lm
+  try {
+    lm = await fetch("http://127.0.0.1:1234/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+  } catch (err) {
+    // LM Studio not reachable at all
+    res.write(
+      "data: " +
+        JSON.stringify({
+          choices: [
+            {
+              delta: {
+                content: "[LLM OFFLINE: unable to reach LM Studio]",
+              },
+            },
+          ],
+        }) +
+        "\n\n"
+    )
+    return res.end()
+  }
+  
+  // LM Studio responded, but no body / error status
   if (!lm.ok || !lm.body) {
-    res.write(`data: {"error": "LM Studio failed"}\n\n`)
+    res.write(
+      "data: " +
+        JSON.stringify({
+          choices: [
+            {
+              delta: {
+                content: "[LLM ERROR: invalid response from LM Studio]",
+              },
+            },
+          ],
+        }) +
+        "\n\n"
+    )
     return res.end()
   }
 
