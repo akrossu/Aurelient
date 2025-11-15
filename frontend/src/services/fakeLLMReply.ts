@@ -9,7 +9,7 @@ export async function fakeLLMReply(
 
   return `echo  
   depth=${Math.round(depth * 100)}%  
-  complexity=${Math.round(prediction.complexity * 100)}%  
-  confidence=${Math.round(prediction.confidence * 100)}%  
+  complexity=${Math.round(prediction.complexity)}%  
+  confidence=${Math.round(prediction.confidence)}%  
   -> ${text}`
 }
