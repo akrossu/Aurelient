@@ -1,6 +1,7 @@
 // src/hooks/useInferencePredictionReal.ts
 import { useState, useRef } from 'react'
 import { fetchPrediction } from '../services/predictionApi'
+import type { PredictionDebugInfo } from '@/components/DebugPanel'
 
 export interface InferencePrediction {
   complexity: number
@@ -14,14 +15,17 @@ const DEFAULT: InferencePrediction = {
 
 export default function useInferencePredictionReal() {
   const [prediction, setPrediction] = useState<InferencePrediction>(DEFAULT)
+  const [debugInfo, setDebugInfo] = useState<PredictionDebugInfo | null>(null)
+
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastText = useRef('')
 
   const updatePredictionFromInput = (text: string) => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current)
-    lastText.current = text
 
+    lastText.current = text
     const trimmed = text.trim()
+
     if (!trimmed) {
       setPrediction(DEFAULT)
       return
@@ -37,7 +41,8 @@ export default function useInferencePredictionReal() {
       try {
         const data = await fetchPrediction(p)
 
-        // backend ensures 1–100, but double check bc u never know these days...
+        setDebugInfo(data.debug ?? null)
+
         const complexity = Math.min(100, Math.max(1, Math.round(data.complexity)))
         const confidence = Math.min(100, Math.max(1, Math.round(data.confidence)))
 
@@ -52,8 +57,9 @@ export default function useInferencePredictionReal() {
   const resetPrediction = () => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current)
     lastText.current = ''
+
     setPrediction(DEFAULT)
   }
 
-  return { prediction, updatePredictionFromInput, resetPrediction }
+  return { prediction, updatePredictionFromInput, resetPrediction, debugInfo }
 }

@@ -115,7 +115,15 @@ async function realPredict(req, res) {
   const result = { complexity, confidence }
   console.log('validated result ->', result)
 
-  return res.json(result)
+  return res.json({
+    ...result,
+    debug: {
+      mode: 'real',
+      prompt: trimmed,
+      rawModelContent: raw,
+      parsed,
+    }
+  })
 }
 
 // -------------------------------------------------------------
@@ -137,7 +145,13 @@ async function fakePredict(req, res) {
     : { complexity: 50, confidence: 70 }
 
   console.log('fake ->', out)
-  res.json(out)
+  res.json({ 
+    ...out,
+    debug: {
+      mode: 'fake',
+      prompt: t,
+    }
+  })
 }
 
 // -------------------------------------------------------------

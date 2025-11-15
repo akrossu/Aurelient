@@ -6,11 +6,7 @@ import { fakeLLMReply } from '../services/fakeLLMReply'
 import type { Message } from '../types/Message'
 
 import ChatInputBox from '@/components/ChatInputBox'
-
-// fake
-// import useInferencePrediction from '../hooks/useInferencePrediction'
-
-// real
+import DebugPanel from '@/components/DebugPanel'
 import useInferencePrediction from '../hooks/useInferencePredictionReal'
 
 const uuid = () => crypto.randomUUID()
@@ -20,7 +16,6 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const [inferenceDepth, setInferenceDepth] = useState(0.5)
   const [showCurve, setShowCurve] = useState(false)
-
   const [depthLocked, setDepthLocked] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement | null>(null)
@@ -28,7 +23,8 @@ export default function ChatPage() {
   const {
     prediction,
     updatePredictionFromInput,
-    resetPrediction
+    resetPrediction,
+    debugInfo,
   } = useInferencePrediction()
 
   const { mean, sigma } = useAnimatedCurve(prediction)
@@ -52,7 +48,6 @@ export default function ChatPage() {
 
   useEffect(() => {
     let frame: number
-
     const loop = () => {
       const elapsed = Date.now() - lastUserControlTime.current
       const allowFollow = !depthLocked && !userIsControlling && elapsed > 800
@@ -76,22 +71,19 @@ export default function ChatPage() {
 
   const sendMessage = async () => {
     if (!input.trim()) return
-  
+
     const userMsg: Message = {
       id: uuid(),
       role: 'user',
       content: input.trim(),
     }
-  
+
     setMessages(prev => [...prev, userMsg])
-  
+
     const reply = await fakeLLMReply(input, inferenceDepth, prediction)
-  
-    setMessages(prev => [
-      ...prev,
-      { id: uuid(), role: 'assistant', content: reply },
-    ])
-  
+
+    setMessages(prev => [...prev, { id: uuid(), role: 'assistant', content: reply }])
+
     setInput('')
     setShowCurve(false)
 
@@ -106,31 +98,52 @@ export default function ChatPage() {
   return (
     <div className="w-full h-screen bg-[#0f1113] text-gray-200 flex flex-col relative">
 
+      {/* Floating Debug Panel */}
+      <DebugPanel
+        debug={debugInfo}
+        inferenceDepth={inferenceDepth}
+        prediction={prediction}
+      />
+
+      {/* HEADER */}
       <header className="h-14 px-6 flex items-center bg-none">
         <h1 className="text-lg font-medium">Aurelient</h1>
       </header>
 
-      <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 pb-[260px] scrollbar-hide">
-        <div className="w-full max-w-3xl mx-auto space-y-4">
-          {messages.map(m => <ChatMessage key={m.id} message={m} />)}
-          <div ref={bottomRef} />
-        </div>
-      </main>
+      {/* SHIFT WRAPPER */}
+      <div
+        className={`
+          flex-1 flex flex-col transition-all duration-300
+          ${debugInfo ? "pl-40" : "pl-0"}
+        `}
+      >
+        {/* MESSAGES */}
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 pb-40 scrollbar-hide">
+          <div className="w-full max-w-3xl mx-auto space-y-4">
+            {messages.map(m => (
+              <ChatMessage key={m.id} message={m} />
+            ))}
+            <div ref={bottomRef} />
+          </div>
+        </main>
 
-      <InferenceCurveContainer
-        visible={showCurve}
-        mean={mean}
-        sigma={sigma}
-        inferenceDepth={inferenceDepth}
-        setInferenceDepth={(v) => {
-          setDepthLocked(true)
-          setInferenceDepth(v)
-        }}
-        toggle={() => setShowCurve(v => !v)}
-        onControlStart={beginControl}
-        onControlEnd={endControl}
-      />
+        {/* CURVE (shifts with messages) */}
+        <InferenceCurveContainer
+          visible={showCurve}
+          mean={mean}
+          sigma={sigma}
+          inferenceDepth={inferenceDepth}
+          setInferenceDepth={v => {
+            setDepthLocked(true)
+            setInferenceDepth(v)
+          }}
+          toggle={() => setShowCurve(v => !v)}
+          onControlStart={beginControl}
+          onControlEnd={endControl}
+        />
+      </div>
 
+      {/* INPUT BAR (NEVER shifts) */}
       <footer className="fixed bottom-0 w-full px-4 sm:px-6 pb-5 z-50">
         <div
           className="absolute inset-x-0 bottom-0 h-[calc((50%)+10px)] bg-[#0f1113] pointer-events-none"
@@ -139,7 +152,7 @@ export default function ChatPage() {
 
         <div className="w-full max-w-3xl mx-auto relative z-50">
           <form
-            onSubmit={(e) => {
+            onSubmit={e => {
               e.preventDefault()
               sendMessage()
             }}
