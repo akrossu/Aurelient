@@ -155,7 +155,7 @@ export default function ChatPage() {
                 className="
                   w-full max-h-32 rounded-full bg-[#1a1c1f] border border-white/10
                   px-5 pr-12 py-3 text-sm placeholder-gray-500
-                  focus:outline-none focus:ring-2 focus:ring-blue-500/40
+                  focus:outline-none focus:ring-0 focus:ring-blue-500/40
                   shadow-inner transition-[height] duration-120 ease-in-out
                   resize-none whitespace-pre-wrap
                   overflow-y-auto box-border
@@ -173,7 +173,6 @@ export default function ChatPage() {
                   e.target.style.height = `${Math.min(e.target.scrollHeight, maxHeight)}px`
                   e.target.style.overflowY = e.target.scrollHeight > maxHeight ? "auto" : "hidden"
                   e.target.style.borderRadius = e.target.scrollHeight > 50 ? "0.75rem" : "9999px" // v kewl
-                  console.log(e.target.scrollHeight)
                 }}
               />
 
