@@ -39,54 +39,54 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       <div
         style={{ borderRadius: radius }}
         className={`
-          px-4 py-2 max-w-[80%] whitespace-pre-wrap
+          px-4 py-2 max-w-[80%]
+          whitespace-pre-line
           ${isUser
             ? "bg-blue-600 text-white"
             : "bg-white/5 text-gray-200 border border-white/10"}
         `}
       >
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeRaw, rehypeSanitize]}
-          components={{
-            code(codeProps) {
-              const { children, className, ...rest } = codeProps
-              const inline = (codeProps as any).inline
+        {/* markdown wrapper controls spacing */}
+        <div className="markdown-body text-[0.95rem] leading-[1.35rem]">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw, rehypeSanitize]}
+            components={{
+              code(codeProps) {
+                const { children, className, ...rest } = codeProps
+                const inline = (codeProps as any).inline
 
-              return inline ? (
-                <code
-                  className="px-1 py-0.5 bg-black/40 rounded"
-                  {...rest}
-                >
-                  {children}
-                </code>
-              ) : (
-                <pre className="bg-black/40 rounded p-3 overflow-x-auto text-sm">
-                  <code className={className} {...rest}>
+                return inline ? (
+                  <code
+                    className="px-1 py-0.5 bg-black/40 rounded"
+                    {...rest}
+                  >
                     {children}
                   </code>
-                </pre>
-              )
-            },
-          }}
-        >
-          {message.content}
-        </ReactMarkdown>
+                ) : (
+                  <pre className="bg-black/40 rounded p-3 overflow-x-auto text-sm">
+                    <code className={className} {...rest}>
+                      {children}
+                    </code>
+                  </pre>
+                )
+              },
+            }}
+          >
+            {message.content}
+          </ReactMarkdown>
+        </div>
 
-        {/* ▼▼▼ ADD THIS BLOCK ▼▼▼ */}
         {!isUser && message.tuning && (
           <details className="mt-2 text-xs opacity-70">
             <summary className="cursor-pointer select-none">
               tuning parameters
             </summary>
-
             <pre className="mt-1 p-2 bg-black/30 rounded border border-white/10 text-[11px] overflow-x-auto">
 {JSON.stringify(message.tuning, null, 2)}
             </pre>
           </details>
         )}
-        {/* ▲▲▲ END ADDITION ▲▲▲ */}
-
       </div>
     </div>
   )
