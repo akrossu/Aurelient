@@ -2,14 +2,15 @@ import { useState, useRef, useEffect } from 'react'
 import ChatMessage from '../components/ChatMessage'
 import InferenceCurveContainer from '../components/InferenceCurveContainer'
 import useAnimatedCurve from '../hooks/useAnimatedCurve'
-import { fakeLLMReply } from '../services/fakeLLMReply'
 import type { Message } from '../types/Message'
+import { streamChat } from "@/services/streamChat"
 
 import ChatInputBox from '@/components/ChatInputBox'
 import DebugPanel from '@/components/DebugPanel'
 import useInferencePrediction from '../hooks/useInferencePredictionReal'
+import { calculateTuningParameters } from '@/inferenceTuning'
 
-const uuid = () => crypto.randomUUID()
+// const uuid = () => crypto.randomUUID()
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
@@ -71,32 +72,54 @@ export default function ChatPage() {
 
   const sendMessage = async () => {
     if (!input.trim()) return
-
+  
     const userMsg: Message = {
-      id: uuid(),
-      role: 'user',
+      id: crypto.randomUUID(),
+      role: "user",
       content: input.trim(),
     }
-
     setMessages(prev => [...prev, userMsg])
-
-    const reply = await fakeLLMReply(input, inferenceDepth, prediction)
-
-    setMessages(prev => [...prev, { id: uuid(), role: 'assistant', content: reply }])
-
-    setInput('')
+  
+    const assistantId = crypto.randomUUID()
+  
+    setMessages(prev => [
+      ...prev,
+        {
+          id: assistantId,
+          role: "assistant",
+          content: "",
+          tuning
+        }
+    ])
+  
+    const text = input
+    const tuning = calculateTuningParameters(inferenceDepth)
+  
+    setInput("")
     setShowCurve(false)
-
     resetPrediction()
     setDepthLocked(false)
+  
+    // STREAMING WITH TUNING
+    await streamChat(text, tuning, (token) => {
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === assistantId
+            ? { ...m, content: m.content + token }
+            : m
+        )
+      )
+    })
   }
+
+
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
   return (
-    <div className="w-full h-screen bg-[#0f1113] text-gray-200 flex flex-col relative">
+    <div className="w-full min-h-screen bg-[#0f1113] text-gray-200 flex flex-col relative">
 
       {/* Floating Debug Panel */}
       <DebugPanel
@@ -145,11 +168,12 @@ export default function ChatPage() {
 
       {/* INPUT BAR (NEVER shifts) */}
       <footer className="fixed bottom-0 w-full px-4 sm:px-6 pb-5 z-50">
+        {/* fade effect */}
         <div
           className="absolute inset-x-0 bottom-0 h-[calc((50%)+10px)] bg-[#0f1113] pointer-events-none"
           style={{ zIndex: 0 }}
         />
-
+      
         <div className="w-full max-w-3xl mx-auto relative z-50">
           <form
             onSubmit={e => {

@@ -18,7 +18,50 @@ html, body, #root {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-.scrollbar-hide {
+.scrollbar-hide, * {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+
+.markdown-body p {
+  margin-top: 0.25rem;   /* tighter top spacing */
+  margin-bottom: 0.25rem; /* tighter bottom spacing */
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  margin-top: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  padding-left: 1.2rem;
+}
+
+.markdown-body li {
+  margin: 0.15rem 0;
+}
+
+.markdown-body blockquote {
+  margin: 0.4rem 0;
+  padding-left: 0.6rem;
+  border-left: 2px solid rgba(255,255,255,0.2);
+}
+
+.markdown-body pre {
+  margin: 0.4rem 0;
+}
+
+.markdown-body > :first-child {
+  margin-top: 0; /* remove extra spacing at top */
+}
+
+.markdown-body > :last-child {
+  margin-bottom: 0; /* remove extra spacing at bottom */
 }

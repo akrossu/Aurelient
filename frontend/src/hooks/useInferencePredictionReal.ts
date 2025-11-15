@@ -39,18 +39,26 @@ export default function useInferencePredictionReal() {
       }
 
       try {
-        const data = await fetchPrediction(p)
-
-        setDebugInfo(data.debug ?? null)
-
-        const complexity = Math.min(100, Math.max(1, Math.round(data.complexity)))
-        const confidence = Math.min(100, Math.max(1, Math.round(data.confidence)))
-
-        setPrediction({ complexity, confidence })
-      } catch (err) {
-        console.error('prediction failed:', err)
-        setPrediction(DEFAULT)
+      const data = await fetchPrediction(p)
+  
+      setDebugInfo(data.debug ?? null)
+  
+      function clamp01to100(v: any, fallback: number) {
+          const n = Number(v)
+          if (!Number.isFinite(n)) return fallback
+          return Math.min(100, Math.max(0, Math.round(n)))
       }
+  
+      setPrediction({
+          complexity: clamp01to100(data.complexity, 50),
+          confidence: clamp01to100(data.confidence, 70)
+      })
+  
+      } catch (err) {
+      console.error("prediction failed:", err)
+      setPrediction(DEFAULT)
+      }
+
     }, 200)
   }
 
