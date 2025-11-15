@@ -17,7 +17,7 @@ export default function useAnimatedCurve(pred: InferencePrediction) {
   const cf = clamp01(pred.confidence / 100)
 
   const targetMean = 0.10 + cx * 0.80
-  const targetSigma = 0.06 + (1 - cf) * 0.22        // lol sigma
+  const targetSigma = 0.06 + Math.pow(1 - cf, 2) * 0.22
 
   const meanRef = useRef(mean)
   const sigmaRef = useRef(sigma)

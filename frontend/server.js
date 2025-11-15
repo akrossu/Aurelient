@@ -6,15 +6,15 @@ const app = express()
 const PORT = 4000
 
 // toggle fake vs real
-const USE_FAKE = true
+const USE_FAKE = false
 
 app.use(cors({ origin: 'http://localhost:5173' }))
 app.use(express.json())
 
-function forceInt1to100(v, fallback) {
+function forceInt0to100(v, fallback) {
   const n = Number(v)
   if (!Number.isFinite(n)) return fallback
-  if (n < 1 || n > 100) return fallback
+  if (n < 0 || n > 100) return fallback
   return Math.round(n)
 }
 
@@ -23,8 +23,8 @@ function fallbackPrediction(prompt) {
   if (!txt) return { complexity: 50, confidence: 70 }
 
   const len = txt.length
-  const c = Math.min(100, Math.max(1, Math.round(len / 4)))
-  const conf = Math.min(100, Math.max(1, 100 - Math.round(len / 6)))
+  const c = Math.min(100, Math.max(0, Math.round(len / 4)))
+  const conf = Math.min(100, Math.max(0, 100 - Math.round(len / 6)))
   return { complexity: c, confidence: conf }
 }
 
@@ -109,8 +109,8 @@ async function realPredict(req, res) {
     return res.json(fb)
   }
 
-  const complexity = forceInt1to100(parsed.complexity, 50)
-  const confidence = forceInt1to100(parsed.confidence, 70)
+  const complexity = forceInt0to100(parsed.complexity, 50)
+  const confidence = forceInt0to100(parsed.confidence, 70)
 
   const result = { complexity, confidence }
   console.log('validated result ->', result)
@@ -160,4 +160,83 @@ app.post('/api/predict', USE_FAKE ? fakePredict : realPredict)
 app.listen(PORT, () => {
   console.log(`backend http://localhost:${PORT}`)
   console.log(`mode: ${USE_FAKE ? 'FAKE' : 'REAL'}`)
+})
+
+app.post("/api/chat-stream", async (req, res) => {
+  const { prompt, tuning } = req.body || {}
+  const trimmed = (prompt || "").trim()
+
+  res.setHeader("Content-Type", "text/event-stream")
+  res.setHeader("Cache-Control", "no-cache")
+  res.setHeader("Connection", "keep-alive")
+  res.flushHeaders()
+
+  if (!trimmed) {
+    res.write("data: {}\n\n")
+    return res.end()
+  }
+
+  const {
+    temperature = 0.5,
+    maxTokens = 500,
+    topP = 1.0,
+    systemRole = "respond normally",
+  } = tuning || {}
+
+  const body = {
+    model: "lmstudio-community/Meta-Llama-3.1-8B-Instruct",
+    stream: true,
+    temperature,
+    top_p: topP,
+    max_tokens: maxTokens,
+    messages: [
+      { role: "system", content: systemRole },
+      { role: "user", content: trimmed },
+    ],
+  }
+
+  const lm = await fetch("http://localhost:1234/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })
+
+  if (!lm.ok || !lm.body) {
+    res.write(`data: {"error": "LM Studio failed"}\n\n`)
+    return res.end()
+  }
+
+  const reader = lm.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ""
+
+  while (true) {
+    const { value, done } = await reader.read()
+    if (done) break
+
+    buffer += decoder.decode(value, { stream: true })
+
+    // LM Studio SSE packets end with \n\n
+    const packets = buffer.split("\n\n")
+    buffer = packets.pop() || ""
+
+    for (const p of packets) {
+      if (!p.startsWith("data:")) continue
+
+      const raw = p.slice(5).trim()
+      if (!raw || raw === "[DONE]") continue
+
+      try {
+        const json = JSON.parse(raw)
+        const token = json?.choices?.[0]?.delta?.content
+        if (token) {
+          res.write(`data: ${JSON.stringify(json)}\n\n`)
+        }
+      } catch {
+        // partial JSON, ignore
+      }
+    }
+  }
+
+  res.end()
 })

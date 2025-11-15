@@ -1,4 +1,4 @@
-import type { InferencePrediction } from '../hooks/useInferencePrediction'
+import type { InferencePrediction } from '../hooks/useMockInferencePrediction'
 
 export async function fakeLLMReply(
   text: string,

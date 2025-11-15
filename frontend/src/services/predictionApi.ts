@@ -7,6 +7,7 @@ export interface InferencePrediction {
 
 export async function fetchPrediction(
   prompt: string,
+  
 ): Promise<InferencePrediction> {
   const res = await fetch('http://localhost:4000/api/predict', {
     method: 'POST',
@@ -28,8 +29,8 @@ export async function fetchPrediction(
   const c = Math.round(data.complexity)
   const f = Math.round(data.confidence)
 
-  if (c < 1 || c > 100) throw new Error('invalid complexity')
-  if (f < 1 || f > 100) throw new Error('invalid confidence')
+  if (c < 0 || c > 100) throw new Error('invalid complexity')
+  if (f < 0 || f > 100) throw new Error('invalid confidence')
 
   return {
     complexity: c,
