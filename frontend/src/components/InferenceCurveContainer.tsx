@@ -17,7 +17,7 @@ export default function InferenceCurveContainer({
   sigma,
   inferenceDepth,
   setInferenceDepth,
-  toggle,       // idk if we're gonna use this again
+//   toggle,       // idk if we're gonna use this again
   onControlStart,
   onControlEnd,
 }: InferenceCurveContainerProps) {
