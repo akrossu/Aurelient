@@ -20,7 +20,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [inferenceDepth, setInferenceDepth] = useState(0.5)
-  const [showCurve, setShowCurve] = useState(true)
+  const [showCurve, setShowCurve] = useState(false)
 
   const [depthLocked, setDepthLocked] = useState(false)
 
@@ -96,8 +96,12 @@ export default function ChatPage() {
     ])
   
     setInput('')
+    setShowCurve(false)
 
-    if (textareaRef.current) textareaRef.current.style.height = 'auto'
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.borderRadius = "9999px"
+    }
 
     resetPrediction()
     setDepthLocked(false)
@@ -139,7 +143,11 @@ export default function ChatPage() {
         onControlEnd={endControl}
       />
 
-      <footer className="px-4 sm:px-6 py-5 backdrop-blur-xl">
+      {/* <footer className="px-4 sm:px-6 py-5 backdrop-blur-xl"> */}
+      <footer className='fixed bottom-0 w-full px-4 sm:px-6 pb-5 z-50'>
+      <div
+      className="absolute inset-x-0 bottom-0 h-[calc((50%)+10px)] bg-[#0f1113] pointer-events-none"
+      style={{ zIndex: 0 }}/>
         <div className="w-full max-w-3xl mx-auto">
           <form
             onSubmit={(e) => {
@@ -167,6 +175,8 @@ export default function ChatPage() {
                   setInput(v)
                   setDepthLocked(false)
                   updatePredictionFromInput(v)
+
+                  setShowCurve(v.length > 0)
 
                   e.target.style.height = 'auto'
                   const maxHeight = 128 // h-32

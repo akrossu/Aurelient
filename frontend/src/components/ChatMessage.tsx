@@ -30,7 +30,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         ref={messageRef}
         style={{ borderRadius }}
         className={`
-          px-4 py-2 text-sm whitespace-pre-wrap
+          px-4 py-2 text-sm whitespace-pre-wrap wrap-break-word
           max-w-[90%] sm:max-w-[75%] backdrop-blur-sm
           shadow-[0_4px_14px_rgba(0,0,0,0.3)]
           ${isUser
