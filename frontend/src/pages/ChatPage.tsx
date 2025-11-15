@@ -96,6 +96,9 @@ export default function ChatPage() {
     ])
   
     setInput('')
+
+    if (textareaRef.current) textareaRef.current.style.height = 'auto'
+
     resetPrediction()
     setDepthLocked(false)
   }
