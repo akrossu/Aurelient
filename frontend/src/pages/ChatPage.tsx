@@ -10,7 +10,7 @@ import DebugPanel from '@/components/DebugPanel'
 import useInferencePrediction from '../hooks/useInferencePredictionReal'
 import { calculateTuningParameters } from '@/inferenceTuning'
 
-const uuid = () => crypto.randomUUID()
+// const uuid = () => crypto.randomUUID()
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
