@@ -64,6 +64,20 @@ export default function ChatPage() {
     await sendMessage(text, tuning)
   }
 
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+
+      const active = document.activeElement
+      if (active === chatInputRef.current) return
+
+      chatInputRef.current?.focus()
+    }
+
+    window.addEventListener("keydown", handleKey)
+    return () => window.removeEventListener("keydown", handleKey)
+  }, [])
+
   return (
     <div className="w-full min-h-screen bg-[#0f1113] text-gray-200 flex flex-col">
 

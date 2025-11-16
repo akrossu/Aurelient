@@ -1,4 +1,3 @@
-// src/components/ChatMessage.tsx
 import { useRef, useEffect, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -31,36 +30,41 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   return (
     <div
       ref={ref}
-      className={`
-        w-full flex
-        ${isUser ? "justify-end" : "justify-start"}
-      `}
+      className={`w-full flex ${isUser ? "justify-end" : "justify-start"}`}
     >
       <div
         style={{ borderRadius: radius }}
         className={`
           px-4 py-2 max-w-[80%]
-          whitespace-pre-line
           ${isUser
             ? "bg-blue-600 text-white"
             : "bg-white/5 text-gray-200 border border-white/10"}
         `}
       >
-        {/* markdown wrapper controls spacing */}
-        <div className="markdown-body text-[0.95rem] leading-[1.35rem]">
+        <div
+          className="
+            markdown-body
+            whitespace-pre-line
+            text-[0.95rem]
+            leading-[1.35rem]
+
+            /* bullet styling simplified */
+            [&_ul]:list-disc
+            [&_ol]:list-decimal
+            [&_ul]:ml-5
+            [&_ol]:ml-5
+            [&_li]:ml-1
+            [&_li]:my-0.5
+          "
+        >
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw, rehypeSanitize]}
             components={{
-              code(codeProps) {
-                const { children, className, ...rest } = codeProps
-                const inline = (codeProps as any).inline
-
+              code({ children, className, ...rest }) {
+                const inline = (rest as any).inline
                 return inline ? (
-                  <code
-                    className="px-1 py-0.5 bg-black/40 rounded"
-                    {...rest}
-                  >
+                  <code className="px-1 py-0.5 bg-black/40 rounded" {...rest}>
                     {children}
                   </code>
                 ) : (
@@ -83,7 +87,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               tuning parameters
             </summary>
             <pre className="mt-1 p-2 bg-black/30 rounded border border-white/10 text-[11px] overflow-x-auto">
-{JSON.stringify(message.tuning, null, 2)}
+              {JSON.stringify(message.tuning, null, 2)}
             </pre>
           </details>
         )}
