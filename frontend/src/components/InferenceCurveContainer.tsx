@@ -1,3 +1,4 @@
+// src/components/InferenceCurveContainer.tsx
 import GaussianCurve from './GaussianCurve'
 
 interface InferenceCurveContainerProps {
@@ -6,7 +7,6 @@ interface InferenceCurveContainerProps {
   sigma: number
   inferenceDepth: number
   setInferenceDepth: (v: number) => void
-  toggle: () => void
   onControlStart: () => void
   onControlEnd: () => void
 }
@@ -17,7 +17,6 @@ export default function InferenceCurveContainer({
   sigma,
   inferenceDepth,
   setInferenceDepth,
-//   toggle,       // idk if we're gonna use this again
   onControlStart,
   onControlEnd,
 }: InferenceCurveContainerProps) {
@@ -26,14 +25,10 @@ export default function InferenceCurveContainer({
   return (
     <div
       className={`
-        absolute bottom-[140px] left-1/2 -translate-x-1/2
+        fixed bottom-[92px] left-1/2 -translate-x-1/2
         z-40 flex flex-col items-center
-        transition-all duration-200 ease-out
-        ${
-          visible
-            ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
-            : 'opacity-0 translate-y-3 scale-[0.97] pointer-events-none'
-        }
+        transition-opacity duration-200 ease-out
+        ${visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
       `}
     >
       <GaussianCurve
