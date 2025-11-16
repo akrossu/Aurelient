@@ -74,8 +74,12 @@ export default function ChatPage() {
       />
 
       {/* HEADER */}
-      <header className="sticky top-0 z-50 h-14 px-6 flex items-center bg-[#0f1113]">
-        <img src="/logo.svg" alt="Logo" className="w-7 h-6 mr-3" />
+      <header className="
+        sticky top-0 z-50 h-14 px-6 flex items-center bg-[#0f1113]
+        after:absolute after:left-0 after:right-0 after:-bottom-2 after:h-2
+        after:bg-linear-to-b after:from-[#0f1113] after:to-transparent after:pointer-events-none"
+      >
+        <img src="/logo.svg" alt="Logo" className="w-7 h-6 mr-3" draggable="false"/>
         <h1 className="text-lg font-medium">Aurelient</h1>
       </header>
 
