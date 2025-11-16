@@ -1,6 +1,5 @@
-import { useRef } from 'react'
+import { useRef, forwardRef, useImperativeHandle } from 'react'
 import { SendHorizonal } from 'lucide-react'
-// import { Send } from '@/components/icons/Send'
 
 interface Props {
   input: string
@@ -11,15 +10,18 @@ interface Props {
   setShowCurve: (v: boolean) => void
 }
 
-export default function ChatInputBox({
+const ChatInputBox = forwardRef<HTMLTextAreaElement, Props>(({
   input,
   setInput,
   sendMessage,
   updatePredictionFromInput,
   setDepthLocked,
   setShowCurve,
-}: Props) {
+}, ref) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Expose the textarea ref to parent
+  useImperativeHandle(ref, () => textareaRef.current!)
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const v = e.target.value
@@ -27,21 +29,14 @@ export default function ChatInputBox({
     setInput(v)
     setDepthLocked(false)
     updatePredictionFromInput(v)
-
-    // curve visibility tied to input length — preserve original behavior
     setShowCurve(v.length > 0)
 
-    // auto-resize
     const el = e.target
     el.style.height = 'auto'
     const maxHeight = 128
     el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`
-    el.style.overflowY =
-      el.scrollHeight > maxHeight ? 'auto' : 'hidden'
-
-    // rounded pill vs rounded box
-    el.style.borderRadius =
-      el.scrollHeight > 50 ? '0.75rem' : '9999px'
+    el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden'
+    el.style.borderRadius = el.scrollHeight > 50 ? '0.75rem' : '9999px'
   }
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -85,4 +80,6 @@ export default function ChatInputBox({
       </button>
     </div>
   )
-}
+})
+
+export default ChatInputBox
