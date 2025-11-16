@@ -74,8 +74,8 @@ export default function ChatPage() {
       />
 
       {/* HEADER */}
-      <header className="h-14 px-6 flex items-center bg-none">
-        <img src="/logo.svg" alt="Logo" className='w-7 h-6 mr-3'></img>
+      <header className="sticky top-0 z-50 h-14 px-6 flex items-center bg-[#0f1113]">
+        <img src="/logo.svg" alt="Logo" className="w-7 h-6 mr-3" />
         <h1 className="text-lg font-medium">Aurelient</h1>
       </header>
 
@@ -125,7 +125,6 @@ export default function ChatPage() {
           </form>
         </div>
       </footer>
-
     </div>
   )
 }
