@@ -10,8 +10,6 @@ import DebugPanel from '@/components/DebugPanel'
 import useInferencePrediction from '../hooks/useInferencePredictionReal'
 import { calculateTuningParameters } from '@/inferenceTuning'
 
-// const uuid = () => crypto.randomUUID()
-
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -20,6 +18,7 @@ export default function ChatPage() {
   const [depthLocked, setDepthLocked] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const chatInputRef = useRef<HTMLTextAreaElement>(null)
 
   const {
     prediction,
@@ -96,6 +95,9 @@ export default function ChatPage() {
     const tuning = calculateTuningParameters(inferenceDepth)
   
     setInput("")
+    if (chatInputRef.current) {
+      chatInputRef.current.style.height = 'auto'
+    }
     setShowCurve(false)
     resetPrediction()
     setDepthLocked(false)
@@ -111,7 +113,6 @@ export default function ChatPage() {
       )
     })
   }
-
 
 
   useEffect(() => {
@@ -183,6 +184,7 @@ export default function ChatPage() {
             className="flex gap-3"
           >
             <ChatInputBox
+              ref={chatInputRef}
               input={input}
               setInput={setInput}
               sendMessage={sendMessage}
