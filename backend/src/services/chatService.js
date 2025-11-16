@@ -1,13 +1,19 @@
+// services/runChatStream.js
 import { callLMStudio } from "../integrations/lmStudioApi.js";
 import { sendSSE } from "../utils/sse.js";
 
-export async function runChatStream(prompt, tuning, res) {
+export async function runChatStream(history, tuning, res) {
   const {
     temperature = 0.5,
     maxTokens = 500,
     topP = 1.0,
     systemRole = "respond normally",
   } = tuning || {};
+
+  const llmHistory = history.map(m => ({
+    role: m.role,
+    content: m.content,
+  }));
 
   const body = {
     model: "lmstudio-community/Meta-Llama-3.1-8B-Instruct",
@@ -17,7 +23,7 @@ export async function runChatStream(prompt, tuning, res) {
     max_tokens: maxTokens,
     messages: [
       { role: "system", content: systemRole },
-      { role: "user", content: prompt },
+      ...llmHistory,
     ],
   };
 
@@ -58,12 +64,8 @@ export async function runChatStream(prompt, tuning, res) {
       try {
         const json = JSON.parse(raw);
         const token = json?.choices?.[0]?.delta?.content;
-        if (token) {
-          sendSSE(res, json);
-        }
-      } catch {
-        // swallow partial JSON
-      }
+        if (token) sendSSE(res, json);
+      } catch { /* partial JSON */ }
     }
   }
 

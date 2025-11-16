@@ -1,9 +1,5 @@
 import { useState, useRef } from 'react'
-
-export interface InferencePrediction {
-  complexity: number
-  confidence: number
-}
+import type { InferencePrediction } from '@/types/InferencePrediction'
 
 const clamp = (v: number, min = 0, max = 1) =>
   Math.min(max, Math.max(min, v))

@@ -7,7 +7,6 @@ export interface InferencePrediction {
 
 export async function fetchPrediction(
   prompt: string,
-  
 ): Promise<InferencePrediction> {
   const res = await fetch('http://localhost:4000/api/predict', {
     method: 'POST',

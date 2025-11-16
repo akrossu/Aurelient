@@ -1,11 +1,8 @@
+import type { TuningParameters } from "./TuningParameters";
+
 export interface Message {
   id: string
   role: "user" | "assistant"
   content: string
-  tuning?: {
-    temperature: number
-    topP: number
-    maxTokens: number
-    systemRole: string
-  }
+  tuning?: TuningParameters
 }

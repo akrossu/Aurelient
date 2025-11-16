@@ -1,16 +1,26 @@
-import { initSSE } from "../utils/sse.js";
 import { runChatStream } from "../services/chatService.js";
 
 export async function chatStreamHandler(req, res) {
-  const { prompt, tuning } = req.body || {};
-  const trimmed = (prompt || "").trim();
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
 
-  initSSE(res);
+  const { history, tuning } = req.body;
 
-  if (!trimmed) {
-    res.write("data: {}\n\n");
+  if (!history || !Array.isArray(history)) {
+    res.write(`data: ${JSON.stringify({ error: "No history provided" })}\n\n`);
     return res.end();
   }
 
-  await runChatStream(trimmed, tuning, res);
+  try {
+    await runChatStream(history, tuning, res);
+  } catch (err) {
+    console.error("chatStreamHandler error:", err);
+    res.write(
+      `data: ${JSON.stringify({
+        choices: [{ delta: { content: "[LLM ERROR: backend exception]" } }],
+      })}\n\n`
+    );
+    res.end();
+  }
 }

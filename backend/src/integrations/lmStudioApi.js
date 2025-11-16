@@ -1,4 +1,4 @@
-import { LMSTUDIO_URL, LMSTUDIO_MODEL } from "../config/settings.js";
+import { LMSTUDIO_URL, LMSTUDIO_MODEL, PREDICTION_PROMPT } from "../config/settings.js";
 
 export async function callLMStudio(body) {
   try {
@@ -24,8 +24,7 @@ export function buildPredictBody(prompt) {
     messages: [
       {
         role: "system",
-        content:
-          'respond ONLY with pure JSON: {"complexity": <int(1-100)>, "confidence": <int(1-100)>}, no text, no code fences.',
+        content: PREDICTION_PROMPT,
       },
       {
         role: "user",

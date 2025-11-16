@@ -1,28 +1,47 @@
 // src/services/streamChat.ts
+import type { TuningParameters } from "@/types/TuningParameters"
+
+export interface ChatMessageForLLM {
+  role: "system" | "user" | "assistant"
+  content: string
+}
+
+export interface FrontendMessage {
+  id: string
+  role: "user" | "assistant"
+  content: string
+  tuning?: any
+}
+
 export async function streamChat(
-  prompt: string,
-  tuning: {
-    temperature: number
-    maxTokens: number
-    topP: number
-    systemRole: string
-  },
-  onToken: (t: string) => void
+  history: FrontendMessage[],
+  tuning: TuningParameters,
+  onToken: (token: string) => void
 ) {
+  // step 1: convert frontend messages -> LLM-safe messages
+  const llmHistory: ChatMessageForLLM[] = history.map(msg => ({
+    role: msg.role,
+    content: msg.content
+  }))
+
   let gotAnyTokens = false
+
   const res = await fetch("http://localhost:4000/api/chat-stream", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, tuning }),
+    body: JSON.stringify({
+      history: llmHistory, // <-- IMPORTANT
+      tuning
+    })
   })
 
   if (!res.ok || !res.body) {
     throw new Error("no body returned")
   }
 
+  // SSE decoding
   const reader = res.body.getReader()
   const decoder = new TextDecoder()
-
   let buffer = ""
 
   while (true) {
@@ -31,28 +50,31 @@ export async function streamChat(
 
     buffer += decoder.decode(value, { stream: true })
 
-    // split into SSE lines
+    // split at double newlines between SSE events
     const parts = buffer.split("\n\n")
     buffer = parts.pop() || ""
 
     for (const part of parts) {
       if (!part.startsWith("data:")) continue
+
       const jsonStr = part.slice(5).trim()
       if (!jsonStr) continue
 
       try {
         const parsed = JSON.parse(jsonStr)
+
+        // LM Studio-style delta format
         const token = parsed?.choices?.[0]?.delta?.content
         if (token) {
           gotAnyTokens = true
           onToken(token)
         }
       } catch {
-        // ignore partial JSON
+        // ignore partial chunks — common in streaming
       }
     }
   }
-  
+
   if (!gotAnyTokens) {
     onToken("[LLM OFFLINE: No response received]")
   }
