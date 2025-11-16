@@ -1,14 +1,16 @@
 import { useState, useRef, useEffect } from 'react'
-import ChatMessage from '../components/ChatMessage'
-import InferenceCurveContainer from '../components/InferenceCurveContainer'
 import useAnimatedCurve from '../hooks/useAnimatedCurve'
 import type { Message } from '../types/Message'
 import { streamChat } from "@/services/streamChat"
 
-import ChatInputBox from '@/components/ChatInputBox'
-import DebugPanel from '@/components/DebugPanel'
 import useInferencePrediction from '../hooks/useInferencePredictionReal'
 import { calculateTuningParameters } from '@/inferenceTuning'
+
+/* COMPONENTS */
+import ChatInputBox from '@/components/ChatInputBox'
+import DebugPanel from '@/components/DebugPanel'
+import ChatMessage from '@/components/ChatMessage'
+import InferenceCurveContainer from '@/components/InferenceCurveContainer'
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
@@ -132,6 +134,7 @@ export default function ChatPage() {
 
       {/* HEADER */}
       <header className="h-14 px-6 flex items-center bg-none">
+        <img src="/logo.svg" alt="Logo" className='w-7 h-6 mr-3'></img>
         <h1 className="text-lg font-medium">Aurelient</h1>
       </header>
 
