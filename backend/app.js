@@ -6,7 +6,14 @@ import chatRoutes from "./src/routes/chatRoutes.js";
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:5173" }));
+let corsOptions = {};
+if (process.env.NODE_ENV === "development") {
+  corsOptions = { origin: "http://localhost:5173" }; // Vite dev server
+} else {
+  corsOptions = { origin: "*" }; // Allow all origins in preview/production or set your domain
+}
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use("/api/predict", predictRoutes);
