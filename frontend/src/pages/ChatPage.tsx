@@ -17,6 +17,7 @@ import { calculateTuningParameters } from "@/inferenceTuning"
 
 export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const chatInputRef = useRef<HTMLTextAreaElement>(null)
 
   const { prediction, updatePredictionFromInput, resetPrediction, debugInfo } =
     usePrediction()
@@ -53,6 +54,10 @@ export default function ChatPage() {
     const text = trimmed
     setInput("")
     resetPrediction()
+    if (chatInputRef.current) {
+      chatInputRef.current.style.height = 'auto'
+      chatInputRef.current.style.borderRadius = '9999px'
+    }
     setShowCurve(false)
     unlock()
 
@@ -69,10 +74,11 @@ export default function ChatPage() {
         prediction={prediction}
       />
 
-      {/* FIXED TOP-LEFT HEADER */}
-      <div className="fixed top-4 left-4 z-50">
-        <Heading />
-      </div>
+      {/* HEADER */}
+      <header className="h-14 px-6 flex items-center bg-none">
+        <img src="/logo.svg" alt="Logo" className='w-7 h-6 mr-3'></img>
+        <h1 className="text-lg font-medium">Aurelient</h1>
+      </header>
 
       {/* MAIN CHAT AREA */}
       <main className="flex-1 overflow-y-auto px-4 sm:px-6 pt-20 pb-[260px] scrollbar-hide">
@@ -109,6 +115,7 @@ export default function ChatPage() {
             className="flex gap-3"
           >
             <ChatInputBox
+              ref={chatInputRef}
               input={input}
               setInput={setInput}
               sendMessage={handleSend}
