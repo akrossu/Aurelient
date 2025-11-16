@@ -42,10 +42,12 @@ export default function ChatPage() {
   const [input, setInput] = useState("")
   const [showCurve, setShowCurve] = useState(false)
 
+  // auto scroll (doesn't work lol)
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  // send message + cleanup
   const handleSend = async () => {
     const trimmed = input.trim()
     if (!trimmed) return
@@ -53,10 +55,12 @@ export default function ChatPage() {
     const text = trimmed
     setInput("")
     resetPrediction()
+
     if (chatInputRef.current) {
-      chatInputRef.current.style.height = 'auto'
-      chatInputRef.current.style.borderRadius = '9999px'
+      chatInputRef.current.style.height = "auto"
+      chatInputRef.current.style.borderRadius = "9999px"
     }
+
     setShowCurve(false)
     unlock()
 
@@ -69,14 +73,23 @@ export default function ChatPage() {
       if (e.metaKey || e.ctrlKey || e.altKey) return
 
       const active = document.activeElement
-      if (active === chatInputRef.current) return
 
-      chatInputRef.current?.focus()
+      if (e.key === "Enter" && !e.shiftKey) {
+        if (input.trim().length > 0) {
+          e.preventDefault()
+          handleSend()
+          return
+        }
+      }
+
+      if (active !== chatInputRef.current) {
+        chatInputRef.current?.focus()
+      }
     }
 
     window.addEventListener("keydown", handleKey)
     return () => window.removeEventListener("keydown", handleKey)
-  }, [])
+  }, [input])
 
   return (
     <div className="w-full min-h-screen bg-[#0f1113] text-gray-200 flex flex-col">
@@ -116,7 +129,6 @@ export default function ChatPage() {
 
       {/* CHAT INPUT FOOTER */}
       <footer className="fixed bottom-0 w-full px-4 sm:px-6 pb-5 z-50">
-        {/* fade overlay behind input */}
         <div className="absolute inset-x-0 bottom-0 h-[calc(50%+10px)] bg-[#0f1113] pointer-events-none" />
 
         <div className="w-full max-w-3xl mx-auto relative z-50">

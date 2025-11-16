@@ -21,7 +21,7 @@ export function useChatMessages(): UseChatMessages {
     const userMsg: Message = {
       id: crypto.randomUUID(),
       role: "user",
-      content: trimmed
+      content: trimmed,
     }
 
     const assistantId = crypto.randomUUID()
@@ -30,15 +30,27 @@ export function useChatMessages(): UseChatMessages {
       id: assistantId,
       role: "assistant",
       content: "",
-      tuning
+      tuning,
+      metrics: null,
     }
 
+    // use functional state update so `messages` isn't stale
     setMessages(prev => [...prev, userMsg, assistantMsg])
 
     try {
+      const historyForLLM = (() => {
+        const current = [
+          ...messages,      // previous messages
+          userMsg           // the new user message
+        ]
+        return current
+      })()
+
       await streamChat(
-        [...messages, userMsg],
+        historyForLLM,
         tuning,
+
+        // token callback
         token => {
           setMessages(prev =>
             prev.map(m =>
@@ -47,17 +59,30 @@ export function useChatMessages(): UseChatMessages {
                 : m
             )
           )
+        },
+
+        // METRICS callback
+        metrics => {
+          setMessages(prev =>
+            prev.map(m =>
+              m.id === assistantId
+                ? { ...m, metrics }
+                : m
+            )
+          )
         }
       )
     } catch (err) {
       console.error("[streamChat error]", err)
+
+      // send fallback system message
       setMessages(prev =>
         prev.map(m =>
           m.id === assistantId
             ? {
                 ...m,
                 content:
-                  "LLM unavailable.\n\nMake sure LM Studio is running on port 1234."
+                  "LLM unavailable.\n\nMake sure LM Studio is running on port 1234.",
               }
             : m
         )
