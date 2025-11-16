@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm"
 import rehypeRaw from "rehype-raw"
 import rehypeSanitize from "rehype-sanitize"
 import type { Message } from "../types/Message"
+import CodeBlock from "./CodeBlock"
 
 interface ChatMessageProps {
   message: Message
@@ -41,39 +42,28 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             : "bg-white/5 text-gray-200 border border-white/10"}
         `}
       >
-        <div
-          className="
-            markdown-body
-            whitespace-pre-line
-            text-[0.95rem]
-            leading-[1.35rem]
+      <div
+        className="
+          markdown-body
+          whitespace-pre-line
+          text-[0.95rem]
+          leading-[1.35rem]
 
-            /* bullet styling simplified */
-            [&_ul]:list-disc
-            [&_ol]:list-decimal
-            [&_ul]:ml-5
-            [&_ol]:ml-5
-            [&_li]:ml-1
-            [&_li]:my-0.5
-          "
-        >
+          [&_ul]:list-disc
+          [&_ol]:list-decimal
+          [&_ul]:ml-5 [&_ol]:ml-5
+          [&_li]:my-1
+
+          /* FIX list spacing */
+          [&_li_p]:my-0
+        "
+      >
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw, rehypeSanitize]}
             components={{
-              code({ children, className, ...rest }) {
-                const inline = (rest as any).inline
-                return inline ? (
-                  <code className="px-1 py-0.5 bg-black/40 rounded" {...rest}>
-                    {children}
-                  </code>
-                ) : (
-                  <pre className="bg-black/40 rounded p-3 overflow-x-auto text-sm">
-                    <code className={className} {...rest}>
-                      {children}
-                    </code>
-                  </pre>
-                )
+              code(props) {
+                return <CodeBlock {...props} />
               },
             }}
           >
