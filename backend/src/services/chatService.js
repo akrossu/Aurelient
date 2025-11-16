@@ -16,7 +16,7 @@ export async function runChatStream(history, tuning, res) {
   }));
 
   const body = {
-    model: "lmstudio-community/Meta-Llama-3.1-8B-Instruct",
+    model: process.env.LMSTUDIO_MODEL,
     stream: true,
     temperature,
     top_p: topP,
