@@ -1,7 +1,10 @@
-# Aurelient 
-**Built for the [PatriotHacks 2025 Hackathon](https://patriothacks2025.devpost.com/)** | **[Devpost Submission](https://devpost.com/software/aurelient)**
+![banner](https://github.com/akrossu/Aurelient/blob/main/resources/banner.png)
 
-Energy-aware AI platform that lets users control model effort to reduce compute waste. 
+<p align=center>Energy-aware AI platform that lets users control model effort to reduce compute waste. </p>
+
+<br>
+
+> **Built for the [PatriotHacks 2025 Hackathon](https://patriothacks2025.devpost.com/)** | **[Devpost Submission](https://devpost.com/software/aurelient)**
 
 ## Installation
 
@@ -50,7 +53,7 @@ The inspiration for this project comes from the ever-growing energy costs of com
 
 This gave us the idea of implementing a solution for private, powerful, and most importantly, energy-efficient AI usage.
 
-![Imgur](https://i.imgur.com/zu4ibPS.png)
+![Imgur](https://github.com/akrossu/Aurelient/blob/main/resources/IPW.png)
 > *Saad-Falcon, et al. [1] pg. 3*
 
 ## What it does
@@ -58,7 +61,7 @@ This gave us the idea of implementing a solution for private, powerful, and most
 Our hostable platform allows users to choose how much effort they want to put into a query. Things like "Write a simple math solution" should not have to use so much energy. That's why we give the option to locally host one or more AI models and access them anywhere through a web interface.
 By preprocessing your prompt with a very lightweight instruct model, we can predict and refine user input. This is significant because with preprocessing, we are able to correctly allocate resources and minimize compute overhead significantly.
 
-![Imgur](https://i.imgur.com/ZWkNkhp.png)
+![Imgur](https://github.com/akrossu/Aurelient/blob/main/resources/elements.png)
 > *various web ui information*
 
 ## How we built it
