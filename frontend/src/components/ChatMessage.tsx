@@ -1,81 +1,91 @@
-// src/components/ChatMessage.tsx
 import { useRef, useEffect, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeRaw from "rehype-raw"
 import rehypeSanitize from "rehype-sanitize"
-import type { Message } from "@/types/Message"
+import type { Message } from "../types/Message"
 import CodeBlock from "./CodeBlock"
 import TechnicalDetails from "./TechnicalDetails"
+import { useDebugClass } from "@/utils/debugStyles"
 
-export default function ChatMessage({ message }: { message: Message }) {
+interface ChatMessageProps {
+  message: Message
+}
+
+export default function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === "user"
-  const ref = useRef<HTMLDivElement>(null)
-  const [radius, setRadius] = useState("9999px")
+  const bubbleRef = useRef<HTMLDivElement>(null)
+  const [borderRadius, setBorderRadius] = useState("9999px")
+
+  const wrapperDebug = useDebugClass("border-red-500")     // outer message line
+  const bubbleDebug = useDebugClass("border-green-500")    // bubble
+  const markdownDebug = useDebugClass("border-yellow-500") // markdown wrapper
+  const techDebug = useDebugClass("border-blue-500")       // technical details wrapper
 
   useEffect(() => {
-    if (!ref.current) return
-    const h = ref.current.offsetHeight
-    const r = h > 50 ? "0.75rem" : "9999px"
+    if (!bubbleRef.current) return
+
+    const h = bubbleRef.current.offsetHeight
+    const base = h > 50 ? "0.75rem" : "9999px"
 
     if (isUser) {
-      setRadius(h > 50 ? `${r} ${r} 0.25rem ${r}` : `${r} ${r} ${r} ${r}`)
+      setBorderRadius(
+        h > 50 ? `${base} ${base} 0.25rem ${base}` : `${base} ${base} ${base} ${base}`
+      )
     } else {
-      setRadius(h > 50 ? `${r} 0.25rem ${r} ${r}` : `${r} ${r} ${r} ${r}`)
+      setBorderRadius(
+        h > 50 ? `${base} 0.25rem ${base} ${base}` : `${base} ${base} ${base} ${base}`
+      )
     }
   }, [message.content])
 
   return (
-    <div className={`w-full flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div className="max-w-[80%] bg-[#0f1113]" ref={ref}>
-        
-        {/* MESSAGE BUBBLE */}
+    <div
+      className={`w-full flex ${isUser ? "justify-end" : "justify-start"} mb-3`}
+    >
+      <div
+        ref={bubbleRef}
+        style={{ borderRadius }}
+        className={`
+          max-w-[75%] md:max-w-[70%]
+          ${isUser ? "px-4 py-2.5" : "px-3 py-2"}
+          text-[0.95rem] leading-[1.35rem]
+
+          ${isUser
+            ? "bg-blue-600 text-white"
+            : "bg-white/5 text-gray-200 border border-white/10"}
+          
+          ${bubbleDebug}
+        `}
+      >
         <div
-          style={{ borderRadius: radius }}
           className={`
-            px-4 py-2 w-full
-            ${isUser
-              ? "bg-blue-600 text-white"
-              : "bg-white/5 text-gray-200 border border-white/10"}
+            markdown-body whitespace-pre-line
+            [&_ul]:list-disc [&_ol]:list-decimal
+            [&_ul]:ml-5 [&_ol]:ml-5
+            [&_li]:my-1
+            ${markdownDebug}
           `}
         >
-          {/* MAIN TEXT */}
-          <div
-            className="
-              markdown-body
-              whitespace-pre-line
-              text-[0.95rem]
-              leading-[1.35rem]
-              [&_ul]:list-disc [&_ol]:list-decimal
-              [&_ul]:ml-5 [&_ol]:ml-5
-              [&_li]:my-1
-              [&_li_p]:my-0
-            "
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw, rehypeSanitize]}
+            components={{
+              code: (props) => <CodeBlock {...props} />,
+            }}
           >
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw, rehypeSanitize]}
-              components={{
-                code(props) {
-                  return <CodeBlock {...props} />
-                },
-              }}
-            >
-              {message.content}
-            </ReactMarkdown>
-          </div>
-
-          {/* TECHNICAL DETAILS */}
-          {!isUser && (message.tuning || message.metrics) && (
-            <div className="mt-3">
-              <TechnicalDetails
-                tuning={message.tuning}
-                metrics={message.metrics}
-              />
-            </div>
-          )}
+            {message.content}
+          </ReactMarkdown>
         </div>
 
+        {!isUser && (message.tuning || message.metrics) && (
+          <div className={`mt-2 ${techDebug}`}>
+            <TechnicalDetails
+              tuning={message.tuning}
+              metrics={message.metrics}
+            />
+          </div>
+        )}
       </div>
     </div>
   )

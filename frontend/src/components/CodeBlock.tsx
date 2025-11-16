@@ -1,3 +1,4 @@
+import { useDebugClass } from "@/utils/debugStyles"
 import { useState } from "react"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/prism"
@@ -23,6 +24,9 @@ export default function CodeBlock({
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false)
 
+  const wrapperDebug = useDebugClass("border-blue-500")
+  const inlineDebug = useDebugClass("border-yellow-500")
+
   const match = /language-(\S+)/.exec(className)
   const lang = match ? match[1] : undefined
 
@@ -39,7 +43,7 @@ export default function CodeBlock({
   // inline code
   if (inline) {
     return (
-      <code className="px-1 py-0.5 bg-black/40 rounded text-[0.85em]">
+      <code className={`px-1 py-0.5 bg-black/40 rounded text-[0.85em] ${inlineDebug}`}>
         {children}
       </code>
     )
@@ -47,7 +51,7 @@ export default function CodeBlock({
 
   // block code
   return (
-    <div className="relative group">
+    <div className={`relative group ${wrapperDebug}`}>
       <button
         onClick={handleCopy}
         className="

@@ -1,4 +1,5 @@
 // src/components/InferenceCurveContainer.tsx
+import { useDebugClass } from "@/utils/debugStyles"
 import GaussianCurve from './GaussianCurve'
 
 interface InferenceCurveContainerProps {
@@ -21,6 +22,8 @@ export default function InferenceCurveContainer({
   onControlEnd,
 }: InferenceCurveContainerProps) {
   const label = (inferenceDepth * 100).toFixed(0)
+  const containerDebug = useDebugClass("border-purple-500")
+  const labelDebug = useDebugClass("border-yellow-500")
 
   return (
     <div
@@ -29,6 +32,7 @@ export default function InferenceCurveContainer({
         z-40 flex flex-col items-center
         transition-opacity duration-200 ease-out
         ${visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
+        ${containerDebug}
       `}
     >
       <GaussianCurve
@@ -42,7 +46,7 @@ export default function InferenceCurveContainer({
         onUserControlEnd={onControlEnd}
       />
 
-      <div className="mt-1.5 text-[11px] text-gray-300 tracking-wide">
+      <div className={`mt-1.5 text-[11px] text-gray-300 tracking-wide ${labelDebug}`}>
         inference depth:{' '}
         <span className="text-gray-50">{label}%</span>
       </div>

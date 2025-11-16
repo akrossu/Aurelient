@@ -1,5 +1,6 @@
 import { useRef, forwardRef, useImperativeHandle } from 'react'
 import { SendHorizonal } from 'lucide-react'
+import { useDebugClass } from "@/utils/debugStyles"
 
 interface Props {
   input: string
@@ -22,6 +23,10 @@ const ChatInputBox = forwardRef<HTMLTextAreaElement, Props>(({
 
   // Expose the textarea ref to parent
   useImperativeHandle(ref, () => textareaRef.current!)
+
+  const wrapDebug = useDebugClass("border-red-500")        // outer wrapper
+  const textareaDebug = useDebugClass("border-purple-500") // textarea core
+  const buttonDebug = useDebugClass("border-yellow-500")   // send button
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const v = e.target.value
@@ -47,7 +52,7 @@ const ChatInputBox = forwardRef<HTMLTextAreaElement, Props>(({
   }
 
   return (
-    <div className="relative flex-1">
+    <div className={`relative flex-1 ${wrapDebug}`}>
       <textarea
         ref={textareaRef}
         rows={1}
@@ -55,14 +60,14 @@ const ChatInputBox = forwardRef<HTMLTextAreaElement, Props>(({
         value={input}
         onChange={handleChange}
         onKeyDown={handleKey}
-        className="
+        className={`
           w-full max-h-32 rounded-full bg-[#1a1c1f] border border-white/10
           px-5 pr-12 py-3 text-sm placeholder-gray-500
           focus:outline-none focus:ring-0 focus:ring-blue-500/40
           shadow-inner transition-[height] duration-120 ease-in-out
-          resize-none whitespace-pre-wrap
-          overflow-y-auto box-border
-        "
+          resize-none whitespace-pre-wrap overflow-y-auto box-border
+          ${textareaDebug}
+        `}
       />
 
       <button
@@ -74,6 +79,7 @@ const ChatInputBox = forwardRef<HTMLTextAreaElement, Props>(({
           transition-opacity duration-300
           focus:outline-none focus:ring-2 focus:ring-blue-500/40
           ${input.trim() ? 'opacity-100 cursor-pointer' : 'opacity-0 cursor-not-allowed'}
+          ${buttonDebug}
         `}
       >
         <SendHorizonal className='w-5 h-5' />

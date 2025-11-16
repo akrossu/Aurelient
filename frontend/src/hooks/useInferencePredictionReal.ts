@@ -16,57 +16,67 @@ const DEFAULT: InferencePrediction = {
 export default function useInferencePredictionReal() {
   const [prediction, setPrediction] = useState<InferencePrediction>(DEFAULT)
   const [debugInfo, setDebugInfo] = useState<PredictionDebugInfo | null>(null)
+  const [isDefault, setIsDefault] = useState(true)
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastText = useRef("")
   const requestId = useRef(0)
+  const wasJustSent = useRef(false)
+
+  const markJustSent = () => {
+    wasJustSent.current = true
+  }
 
   const updatePredictionFromInput = (text: string) => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current)
 
-    lastText.current = text
     const trimmed = text.trim()
+    lastText.current = text
 
     if (!trimmed) {
+      if (wasJustSent.current) {
+        wasJustSent.current = false
+        setPrediction(DEFAULT)
+        setIsDefault(true)
+        return
+      }
+
       requestId.current++
       setPrediction(DEFAULT)
+      setIsDefault(true)
+      setDebugInfo(null)
       return
     }
 
+    wasJustSent.current = false
     const thisRequest = ++requestId.current
 
     debounceTimer.current = setTimeout(async () => {
       const p = lastText.current.trim()
-      if (!p) {
-        if (thisRequest === requestId.current) setPrediction(DEFAULT)
-        return
-      }
+      if (!p) return
 
       try {
         const data = await fetchPrediction(p)
-
-        // ignore stale responses
         if (thisRequest !== requestId.current) return
 
+        setIsDefault(false)
         setDebugInfo(data.debug ?? null)
 
-        // safe clamp
-        const clamp01to100 = (v: any, fallback: number) => {
+        const clamp = (v: any, fallback: number) => {
           const n = Number(v)
           if (!Number.isFinite(n)) return fallback
           return Math.min(100, Math.max(0, Math.round(n)))
         }
 
         setPrediction({
-          complexity: clamp01to100(data.complexity, 50),
-          confidence: clamp01to100(data.confidence, 70),
+          complexity: clamp(data.complexity, 50),
+          confidence: clamp(data.confidence, 70),
         })
       } catch (err) {
-        // ignore stale requests even on failure
         if (thisRequest !== requestId.current) return
-
         console.error("prediction failed:", err)
         setPrediction(DEFAULT)
+        setIsDefault(true)
       }
     }, 200)
   }
@@ -76,6 +86,7 @@ export default function useInferencePredictionReal() {
     requestId.current++
     lastText.current = ""
     setPrediction(DEFAULT)
+    setIsDefault(true)
   }
 
   return {
@@ -83,5 +94,7 @@ export default function useInferencePredictionReal() {
     updatePredictionFromInput,
     resetPrediction,
     debugInfo,
+    isDefault,
+    markJustSent,
   }
 }

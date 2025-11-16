@@ -1,3 +1,4 @@
+import { useDebugClass } from "@/utils/debugStyles"
 import { Info } from "lucide-react"
 import type { Message } from "@/types/Message"
 
@@ -8,14 +9,18 @@ interface TechnicalDetailsProps {
 
 export default function TechnicalDetails({ tuning, metrics }: TechnicalDetailsProps) {
   if (!tuning && !metrics) return null
+  const detailsDebug = useDebugClass("border-green-500")
+  const sectionDebug = useDebugClass("border-blue-500")
+  const metricDebug = useDebugClass("border-yellow-500")
+  
 
   return (
-    <details className="mt-2 text-xs opacity-80">
+    <details className={`mt-2 text-xs opacity-80 ${detailsDebug}`}>
       <summary className="cursor-pointer select-none">
         technical details
       </summary>
 
-      <div className="mt-2 p-3 bg-black/30 rounded-xl border border-white/10 space-y-3">
+      <div className={`mt-2 p-3 bg-black/30 rounded-xl border border-white/10 space-y-3 ${sectionDebug}`}>
 
         {/* TUNING PARAMETERS */}
         {tuning && (
@@ -33,7 +38,7 @@ export default function TechnicalDetails({ tuning, metrics }: TechnicalDetailsPr
         {/* METRICS */}
         {metrics && (
           <section className="space-y-1">
-            <div className="text-gray-400 font-semibold text-[11px]">
+            <div className={`text-gray-400 font-semibold text-[11px] ${metricDebug}`}>
               response metrics
             </div>
 

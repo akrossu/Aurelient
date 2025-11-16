@@ -1,3 +1,4 @@
+import { useDebugClass } from "@/utils/debugStyles"
 import { useMemo, useRef, useCallback } from 'react'
 
 interface GaussianCurveProps {
@@ -24,6 +25,10 @@ export default function GaussianCurve({
   onUserControlEnd,
 }: GaussianCurveProps) {
   const svgRef = useRef<SVGSVGElement>(null)
+
+  const wrapDebug = useDebugClass("border-red-500")
+  const cardDebug = useDebugClass("border-green-500")
+  const svgDebug = useDebugClass("border-blue-500")
 
   const gaussian = useCallback(
     (x: number) => {
@@ -70,19 +75,20 @@ export default function GaussianCurve({
 
   // this was pure chat ngl
   return (
-    <div className="w-full flex justify-center">
+    <div className={`w-full flex justify-center ${wrapDebug}`}>
       <div
-        className="
+        className={`
           rounded-xl px-3 py-3
           bg-[#0d1014]/90 border border-white/10
           backdrop-blur-md shadow-[0_8px_22px_rgba(0,0,0,0.3)]
-        "
+          ${cardDebug}
+        `}
       >
         <svg
           ref={svgRef}
           width={width}
           height={height}
-          className="cursor-pointer select-none"
+          className={`cursor-pointer select-none ${svgDebug}`}
           onMouseDown={handleMouseDown}
         >
           <defs>

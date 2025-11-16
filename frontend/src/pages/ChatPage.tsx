@@ -1,5 +1,3 @@
-// src/pages/ChatPage.tsx
-
 import { useState, useRef, useEffect } from "react"
 import ChatMessage from "@/components/ChatMessage"
 import ChatInputBox from "@/components/ChatInputBox"
@@ -14,12 +12,29 @@ import { useChatMessages } from "@/hooks/useChatMessages"
 
 import { calculateTuningParameters } from "@/inferenceTuning"
 
+import { useDebugClass } from "@/utils/debugStyles"
+
 export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const chatInputRef = useRef<HTMLTextAreaElement>(null)
 
-  const { prediction, updatePredictionFromInput, resetPrediction, debugInfo } =
-    usePrediction()
+  // debug boundaries
+  const pageDebug = useDebugClass("border-red-500")
+  const headerDebug = useDebugClass("border-yellow-500")
+  const mainDebug = useDebugClass("border-blue-500")
+  const innerMainDebug = useDebugClass("border-green-500")
+  const footerDebug = useDebugClass("border-purple-500")
+  const formDebug = useDebugClass("border-yellow-500")
+
+  // prediction + tuning + input state
+  const {
+    prediction,
+    updatePredictionFromInput,
+    resetPrediction,
+    debugInfo,
+    isDefault,
+    markJustSent
+  } = usePrediction()
 
   const { mean, sigma } = useAnimatedCurve(prediction)
 
@@ -42,18 +57,18 @@ export default function ChatPage() {
   const [input, setInput] = useState("")
   const [showCurve, setShowCurve] = useState(false)
 
-  // auto scroll (doesn't work lol)
+  // auto-scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // send message + cleanup
   const handleSend = async () => {
     const trimmed = input.trim()
     if (!trimmed) return
 
     const text = trimmed
     setInput("")
+    markJustSent()
     resetPrediction()
 
     if (chatInputRef.current) {
@@ -68,6 +83,7 @@ export default function ChatPage() {
     await sendMessage(text, tuning)
   }
 
+  // auto-focus control
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return
@@ -92,27 +108,48 @@ export default function ChatPage() {
   }, [input])
 
   return (
-    <div className="w-full min-h-screen bg-[#0f1113] text-gray-200 flex flex-col">
-
+    <div
+      className={`
+        w-full min-h-screen bg-[#0f1113] text-gray-200
+        flex flex-col relative
+        ${pageDebug}
+      `}
+    >
+      {/* DEBUG PANEL */}
       <DebugPanel
         debug={debugInfo}
         inferenceDepth={depth}
         prediction={prediction}
+        isDefault={isDefault}
       />
 
       {/* HEADER */}
-      <header className="
-        sticky top-0 z-50 h-14 px-6 flex items-center bg-[#0f1113]
-        after:absolute after:left-0 after:right-0 after:-bottom-2 after:h-2
-        after:bg-linear-to-b after:from-[#0f1113] after:to-transparent after:pointer-events-none"
+      <header
+        className={`
+          sticky top-0 z-50 h-14 px-6 flex items-center bg-[#0f1113]
+          after:absolute after:left-0 after:right-0 after:-bottom-2 after:h-2
+          after:bg-linear-to-b after:from-[#0f1113] after:to-transparent after:pointer-events-none
+          ${headerDebug}
+        `}
       >
         <img src="/logo.svg" alt="Logo" className="w-7 h-6 mr-3" draggable="false"/>
         <h1 className="text-lg font-medium">Aurelient</h1>
       </header>
 
-      {/* MAIN CHAT AREA */}
-      <main className="flex-1 overflow-y-auto px-4 sm:px-6 pt-20 pb-[260px] scrollbar-hide">
-        <div className="w-full max-w-3xl mx-auto space-y-4">
+      {/* MAIN CONTENT */}
+      <main
+        className={`
+          flex-1 overflow-y-auto px-4 sm:px-6
+          pt-20 pb-[260px] scrollbar-hide
+          ${mainDebug}
+        `}
+      >
+        <div
+          className={`
+            w-full max-w-3xl mx-auto space-y-4
+            ${innerMainDebug}
+          `}
+        >
           {messages.map(m => (
             <ChatMessage key={m.id} message={m} />
           ))}
@@ -120,7 +157,7 @@ export default function ChatPage() {
         </div>
       </main>
 
-      {/* FLOATING CURVE */}
+      {/* INFERENCE CURVE OVERLAY */}
       <InferenceCurveContainer
         visible={showCurve}
         mean={mean}
@@ -131,17 +168,22 @@ export default function ChatPage() {
         onControlEnd={endControl}
       />
 
-      {/* CHAT INPUT FOOTER */}
-      <footer className="fixed bottom-0 w-full px-4 sm:px-6 pb-5 z-50">
+      {/* FOOTER */}
+      <footer
+        className={`
+          fixed bottom-0 w-full px-4 sm:px-6 pb-5 z-50
+          ${footerDebug}
+        `}
+      >
         <div className="absolute inset-x-0 bottom-0 h-[calc(50%+10px)] bg-[#0f1113] pointer-events-none" />
 
-        <div className="w-full max-w-3xl mx-auto relative z-50">
+        <div className={`w-full max-w-3xl mx-auto relative z-50`}>
           <form
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault()
               handleSend()
             }}
-            className="flex gap-3"
+            className={`flex gap-3 ${formDebug}`}
           >
             <ChatInputBox
               ref={chatInputRef}

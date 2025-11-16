@@ -65,3 +65,9 @@ html, body, #root {
 .markdown-body > :last-child {
   margin-bottom: 0; /* remove extra spacing at bottom */
 }
+
+.debug-outline-border-red-500   { outline: 2px dashed #ef4444; }
+.debug-outline-border-green-500 { outline: 2px dashed #22c55e; }
+.debug-outline-border-blue-500  { outline: 2px dashed #3b82f6; }
+.debug-outline-border-purple-500{ outline: 2px dashed #a855f7; }
+.debug-outline-border-yellow-500{ outline: 2px dashed #eab308; }
