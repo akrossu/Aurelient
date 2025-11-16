@@ -97,6 +97,7 @@ export default function ChatPage() {
     setInput("")
     if (chatInputRef.current) {
       chatInputRef.current.style.height = 'auto'
+      chatInputRef.current.style.borderRadius = '9999px'
     }
     setShowCurve(false)
     resetPrediction()
