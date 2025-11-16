@@ -103,7 +103,7 @@ Aurelient has enormous room to grow. This project time pushed us to implement wh
 ## Team Members
 
 - **Zachary Merritt**: Frontend developer, AI Researcher, Documentation Lead, UX Designer  
-- **Ethan Pierce**: Fullstack developer, API Engineer, DevOps, Project Designer, Code Lead  
+- **Loren (Ethan) Pierce**: Fullstack developer, API Engineer, DevOps, Project Designer, Code Lead  
 - **Ashley Chi**: Frontend developer  
 - **Priya Kallat**: Backend developer
 
