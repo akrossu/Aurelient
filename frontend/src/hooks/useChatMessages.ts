@@ -3,6 +3,8 @@ import type { Message } from "@/types/Message"
 import { streamChat } from "@/services/streamChat"
 import type { TuningParameters } from "@/types/TuningParameters"
 
+import { addEnergy } from "@/stores/useEnergyStore"  // <-- NEW
+
 interface UseChatMessages {
   messages: Message[]
   sendMessage: (text: string, tuning: TuningParameters) => Promise<void>
@@ -34,23 +36,18 @@ export function useChatMessages(): UseChatMessages {
       metrics: null,
     }
 
-    // use functional state update so `messages` isn't stale
+    // add user + empty assistant message immediately
     setMessages(prev => [...prev, userMsg, assistantMsg])
 
     try {
-      const historyForLLM = (() => {
-        const current = [
-          ...messages,      // previous messages
-          userMsg           // the new user message
-        ]
-        return current
-      })()
+      // history used for LLM (avoid stale closure)
+      const historyForLLM = [...messages, userMsg]
 
       await streamChat(
         historyForLLM,
         tuning,
 
-        // token callback
+        // streaming token callback
         token => {
           setMessages(prev =>
             prev.map(m =>
@@ -61,8 +58,9 @@ export function useChatMessages(): UseChatMessages {
           )
         },
 
-        // METRICS callback
+        // metrics callback (fires once)
         metrics => {
+          // apply metrics to assistant message
           setMessages(prev =>
             prev.map(m =>
               m.id === assistantId
@@ -70,12 +68,17 @@ export function useChatMessages(): UseChatMessages {
                 : m
             )
           )
+
+          // ENERGY TRACKING
+          if (metrics?.estimatedEnergyWh != null) {
+            addEnergy(metrics.estimatedEnergyWh)
+          }
         }
       )
     } catch (err) {
       console.error("[streamChat error]", err)
 
-      // send fallback system message
+      // fallback system error message
       setMessages(prev =>
         prev.map(m =>
           m.id === assistantId

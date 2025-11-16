@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react"
+
 import ChatMessage from "@/components/ChatMessage"
 import ChatInputBox from "@/components/ChatInputBox"
 import InferenceCurveContainer from "@/components/InferenceCurveContainer"
@@ -11,6 +12,7 @@ import { useDepthAutoFollow } from "@/hooks/useDepthAutoFollow"
 import { useChatMessages } from "@/hooks/useChatMessages"
 
 import { calculateTuningParameters } from "@/inferenceTuning"
+import { useTotalEnergy } from "@/stores/useEnergyStore"
 
 import { useDebugClass } from "@/utils/debugStyles"
 
@@ -26,7 +28,7 @@ export default function ChatPage() {
   const footerDebug = useDebugClass("border-purple-500")
   const formDebug = useDebugClass("border-yellow-500")
 
-  // prediction + tuning + input state
+  // prediction system
   const {
     prediction,
     updatePredictionFromInput,
@@ -38,6 +40,7 @@ export default function ChatPage() {
 
   const { mean, sigma } = useAnimatedCurve(prediction)
 
+  // Inference curve behavior
   const {
     depth,
     setDepth,
@@ -52,21 +55,35 @@ export default function ChatPage() {
 
   useDepthAutoFollow(mean, locked, userIsControlling, setDepthRaw)
 
+  // messages & sendMessage
   const { messages, sendMessage } = useChatMessages()
 
+  // energy tracking
+  const totalEnergy = useTotalEnergy()
+
+  // input & visibility toggles
   const [input, setInput] = useState("")
   const [showCurve, setShowCurve] = useState(false)
+
+  // update title with Wh used
+  useEffect(() => {
+    if (totalEnergy > 0) {
+      document.title = `Aurelient — ${totalEnergy.toFixed(4)} Wh Used`
+    } else {
+      document.title = "Aurelient"
+    }
+  }, [totalEnergy])
 
   // auto-scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  // sending messages
   const handleSend = async () => {
     const trimmed = input.trim()
     if (!trimmed) return
 
-    const text = trimmed
     setInput("")
     markJustSent()
     resetPrediction()
@@ -80,10 +97,10 @@ export default function ChatPage() {
     unlock()
 
     const tuning = calculateTuningParameters(depth)
-    await sendMessage(text, tuning)
+    await sendMessage(trimmed, tuning)
   }
 
-  // auto-focus control
+  // auto-focus behavior
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return
@@ -115,7 +132,7 @@ export default function ChatPage() {
         ${pageDebug}
       `}
     >
-      {/* DEBUG PANEL */}
+      {/* Debug Panel */}
       <DebugPanel
         debug={debugInfo}
         inferenceDepth={depth}
@@ -123,20 +140,20 @@ export default function ChatPage() {
         isDefault={isDefault}
       />
 
-      {/* HEADER */}
+      {/* Header */}
       <header
         className={`
           sticky top-0 z-50 h-14 px-6 flex items-center bg-[#0f1113]
           after:absolute after:left-0 after:right-0 after:-bottom-2 after:h-2
-          after:bg-linear-to-b after:from-[#0f1113] after:to-transparent after:pointer-events-none
+          after:bg-linear-to-b after:from-[#0f1113] after:to-transparent
           ${headerDebug}
         `}
       >
-        <img src="/logo.svg" alt="Logo" className="w-7 h-6 mr-3" draggable="false"/>
+        <img src="/logo.svg" alt="Logo" className="w-7 h-6 mr-3" draggable="false" />
         <h1 className="text-lg font-medium">Aurelient</h1>
       </header>
 
-      {/* MAIN CONTENT */}
+      {/* Main */}
       <main
         className={`
           flex-1 overflow-y-auto px-4 sm:px-6
@@ -157,7 +174,7 @@ export default function ChatPage() {
         </div>
       </main>
 
-      {/* INFERENCE CURVE OVERLAY */}
+      {/* Inference Curve */}
       <InferenceCurveContainer
         visible={showCurve}
         mean={mean}
@@ -168,7 +185,7 @@ export default function ChatPage() {
         onControlEnd={endControl}
       />
 
-      {/* FOOTER */}
+      {/* Footer */}
       <footer
         className={`
           fixed bottom-0 w-full px-4 sm:px-6 pb-5 z-50
@@ -177,9 +194,9 @@ export default function ChatPage() {
       >
         <div className="absolute inset-x-0 bottom-0 h-[calc(50%+10px)] bg-[#0f1113] pointer-events-none" />
 
-        <div className={`w-full max-w-3xl mx-auto relative z-50`}>
+        <div className="w-full max-w-3xl mx-auto relative z-50">
           <form
-            onSubmit={(e) => {
+            onSubmit={e => {
               e.preventDefault()
               handleSend()
             }}
