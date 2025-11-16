@@ -17,7 +17,6 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   const bubbleRef = useRef<HTMLDivElement>(null)
   const [borderRadius, setBorderRadius] = useState("9999px")
 
-  const wrapperDebug = useDebugClass("border-red-500")     // outer message line
   const bubbleDebug = useDebugClass("border-green-500")    // bubble
   const markdownDebug = useDebugClass("border-yellow-500") // markdown wrapper
   const techDebug = useDebugClass("border-blue-500")       // technical details wrapper
