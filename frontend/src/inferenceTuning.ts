@@ -1,10 +1,9 @@
 export function calculateTuningParameters(depth: number) {
   const d = Math.min(1, Math.max(0, depth))
 
-  // aggressive curves for dramatic effect
-  const temperature = 0.05 + d * 1.15        // 0.05 → 1.20
-  const topP = 0.75 + d * 0.25               // 0.75 → 1.0
-  const maxTokens = Math.round(150 + d * 6000) // 150 → 6150 tokens
+  const temperature = 0.05 + d * 1.15
+  const topP = 0.75 + d * 0.25
+  const maxTokens = Math.round(150 + d * 6000)
 
   let systemRole: string
 
@@ -46,5 +45,6 @@ export function calculateTuningParameters(depth: number) {
     topP,
     maxTokens,
     systemRole,
+    inferenceDepth: d
   }
 }

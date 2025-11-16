@@ -3,14 +3,15 @@ import type { Message } from "@/types/Message"
 import { streamChat } from "@/services/streamChat"
 import { calculateTuningParameters } from "@/inferenceTuning"
 
-export function useChatEngine(inferenceDepth: number) {
+export function useChatEngine(depth: number, userTouched: boolean) {
   const [messages, setMessages] = useState<Message[]>([])
 
   const send = async (text: string) => {
     const trimmed = text.trim()
     if (!trimmed) return
 
-    const tuning = calculateTuningParameters(inferenceDepth)
+    const effectiveDepth = userTouched ? depth : 1.0
+    const tuning = calculateTuningParameters(effectiveDepth)
 
     const userMsg: Message = {
       id: crypto.randomUUID(),

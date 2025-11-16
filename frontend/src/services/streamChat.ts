@@ -16,9 +16,9 @@ export interface FrontendMessage {
 export async function streamChat(
   history: FrontendMessage[],
   tuning: TuningParameters,
-  onToken: (token: string) => void
+  onToken: (token: string) => void,
+  onMetrics?: (m: any) => void
 ) {
-  // step 1: convert frontend messages -> LLM-safe messages
   const llmHistory: ChatMessageForLLM[] = history.map(msg => ({
     role: msg.role,
     content: msg.content
@@ -30,7 +30,7 @@ export async function streamChat(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      history: llmHistory, // <-- IMPORTANT
+      history: llmHistory,
       tuning
     })
   })
@@ -39,7 +39,7 @@ export async function streamChat(
     throw new Error("no body returned")
   }
 
-  // SSE decoding
+  // SSE
   const reader = res.body.getReader()
   const decoder = new TextDecoder()
   let buffer = ""
@@ -50,7 +50,6 @@ export async function streamChat(
 
     buffer += decoder.decode(value, { stream: true })
 
-    // split at double newlines between SSE events
     const parts = buffer.split("\n\n")
     buffer = parts.pop() || ""
 
@@ -63,14 +62,20 @@ export async function streamChat(
       try {
         const parsed = JSON.parse(jsonStr)
 
-        // LM Studio-style delta format
+        // METRICS PACKET
+        if (parsed.metrics) {
+          if (onMetrics) onMetrics(parsed.metrics)
+          continue
+        }
+
+        // TOKEN PACKET
         const token = parsed?.choices?.[0]?.delta?.content
         if (token) {
           gotAnyTokens = true
           onToken(token)
         }
       } catch {
-        // ignore partial chunks — common in streaming
+        // ignore partial
       }
     }
   }
