@@ -5,7 +5,6 @@ import ChatMessage from "@/components/ChatMessage"
 import ChatInputBox from "@/components/ChatInputBox"
 import InferenceCurveContainer from "@/components/InferenceCurveContainer"
 import DebugPanel from "@/components/DebugPanel"
-import Heading from "@/components/Heading"
 
 import useAnimatedCurve from "@/hooks/useAnimatedCurve"
 import usePrediction from "@/hooks/useInferencePredictionReal"
