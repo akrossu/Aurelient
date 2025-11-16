@@ -1,0 +1,22 @@
+{
+  "name": "aurelient",
+  "version": "1.0.0",
+  "description": "Energy-aware AI platform that lets users control model effort to reduce compute waste.",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm --prefix frontend install && npm --prefix backend install",
+
+    "start:backend": "npm --prefix backend start",
+    "start:frontend": "npm --prefix frontend run build && npm --prefix frontend run preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akrossu/Aurelient.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akrossu/Aurelient/issues"
+  },
+  "homepage": "https://github.com/akrossu/Aurelient#readme"
+}
