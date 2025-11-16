@@ -1,5 +1,5 @@
 # Aurelient 
-**Built for the PatriotHacks 2025 Hackathon**
+**Built for the [PatriotHacks 2025 Hackathon](https://patriothacks2025.devpost.com/)** | **[Devpost Submission](https://devpost.com/software/aurelient)**
 
 Energy-aware AI platform that lets users control model effort to reduce compute waste. 
 
