@@ -3,6 +3,21 @@ import { buildPredictBody, callLMStudio } from "../integrations/lmStudioApi.js";
 import { fallbackPrediction } from "../utils/fallback.js";
 import { forceInt0to100 } from "../utils/validators.js";
 
+export async function runFakePrediction(prompt) {
+  const trimmed = (prompt || "").trim();
+  
+  return {
+    complexity: forceInt0to100(Math.floor(Math.random() * 100) + 1, 50),
+    confidence: forceInt0to100(Math.floor(Math.random() * 100) + 1, 70),
+    debug: {
+      mode: "fake",
+      prompt: trimmed,
+      rawModelContent: "{}",
+      parsed: "",
+    },
+  };
+}
+
 export async function runRealPrediction(prompt) {
   const trimmed = (prompt || "").trim();
 
