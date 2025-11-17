@@ -57,7 +57,7 @@ Right now, LLMs decide how much reasoning and computation to spend purely from y
 
 Seeing how often people have to coach LLMs into giving the right amount of detail made us realize that *wasted user effort and wasted compute are usually the same problem*. Cloud AI platforms burn a lot of energy answering prompts more deeply than needed, and users lose time trying to control them.
 
-At the same time, new work like Saad-Falcon, et al. [1] shows that modern local models are far more efficient than expected, with consumer hardware reaching up to 88.7% single-turn reasoning performance. We saw this as an opportunity for something better.
+At the same time, new work like Saad-Falcon, et al [1] shows that modern local models are far more efficient than expected, with consumer hardware reaching up to 88.7% single-turn reasoning performance. We saw this as an opportunity for something better.
 
 That’s when Aurelient was born: a platform built around giving users control and using only the compute that a response actually needs.
 
@@ -66,7 +66,6 @@ That’s when Aurelient was born: a platform built around giving users control a
 ## What it does
 
 Our hostable platform allows users to choose how much effort they want to put into a query. Prompts like "Write a simple math solution" should not have to use so much energy. That's why we give the option to locally host one or more AI models and access them anywhere through a web interface.
-
 By preprocessing your prompt with a very lightweight tool-use model, we can predict and refine how larger models respond to prompts. This is significant because through preprocessing, we are able to correctly allocate resources and minimize compute overhead, while giving the user more control over how the model responds.
 
 ![Imgur](https://i.imgur.com/ZWkNkhp.png)
@@ -79,10 +78,10 @@ The interface provides real-time information and allows the user to easily adjus
 
 ### Tech Stack
 
-- **Frontend:** React, Vite, Tailwind  
-- **Backend / API:** Express REST API, LM Studio Server  
-- **Models:** Llama 8B instruct model, various larger conversation models  
-- **Tools / Infrastructure:** Node.js, local GPU hardware (RTX 4070 super, Apple M3)
+- **Frontend:** React, Vite, Tailwind
+- **Backend / API**: Express REST API, LM Studio Server
+- **Models**: Llama 8B instruct model, various larger conversation models
+- **Tools / Infrastructure**: Node.js, local GPU hardware (RTX 4070 super, Apple M3)
 
 ## Challenges we ran into
 
@@ -102,13 +101,13 @@ Aurelient has enormous room to grow. This project time pushed us to implement wh
 
 ## Team Members
 
-- **Zachary Merritt**: Frontend developer, AI Researcher, Documentation Lead, UX Designer  
-- **Loren (Ethan) Pierce**: Fullstack developer, API Engineer, DevOps, Project Designer, Code Lead  
-- **Ashley Chi**: Frontend developer  
+- **Zachary Merritt**: Full Stack Developer, AI Researcher,  Build & Release Engineer, UI/UX Designer, Technical Writer
+- **Ethan Pierce**: Full Stack Developer, API Engineer, Prompt Engineer, Technical Program Manager, Engineering Lead
+- **Ashley Chi**: Frontend developer
 - **Priya Kallat**: Backend developer
 
 ## Sources
 
-[1] Saad-Falcon, Jon, et al. “Intelligence per Watt: Measuring Intelligence Efficiency of Local AI.” [ArXiv.org](https://arxiv.org/abs/2511.07885), 2025.
+[1] Saad-Falcon, Jon, et al. “Intelligence per Watt: Measuring Intelligence Efficiency of Local AI.” [ArXiv.org](http://arxiv.org/), 2025, https://arxiv.org/abs/2511.07885.
 
 [2] https://github.com/HazyResearch/intelligence-per-watt
